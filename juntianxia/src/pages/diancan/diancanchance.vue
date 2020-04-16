@@ -195,8 +195,10 @@
         let req = {
           user_id: localStorage.getItem('uid'),
           list_rows: 999,
-          room_id: localStorage.getItem('destine_roomID'),
-          restaurant_id: localStorage.getItem('restaurant_id'),
+          room_id: 0,
+          // room_id: localStorage.getItem('destine_roomID'),
+          restaurant_id: 4,
+          // restaurant_id: localStorage.getItem('restaurant_id'),
           page: 1
         };
         //没数据

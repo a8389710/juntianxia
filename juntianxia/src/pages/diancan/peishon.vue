@@ -14,17 +14,19 @@
       </div>
       <div class="dizishijian">
         <div class="dizi" @click="toAddress">
-          <div class="tit">{{provinceName+cityName+areaName+receiving_address}}</div>
-          <div class="name">{{receiving_name}}</div>
-          <div class="number">{{receiving_phone}}</div>
-          <div class="next"></div>
+          <div v-if="addDes" class="noAddress tit">{{addDes}}</div>
+          <div v-else class="hasAddress">
+            <div class="tit">{{addDes}}</div>
+            <div class="name">{{receiving_name}}</div>
+            <div class="number">{{receiving_phone}}</div>
+            <div class="next"></div>
+          </div>
         </div>
         <div class="xian"></div>
         <div class="time">
           <div class="l">送达时间</div>
           <div class="r" @click="popuptime">
             {{timetext}}
-
           </div>
           <div class="icon"></div>
         </div>
@@ -157,9 +159,14 @@
         receiving_name:'',
         receiving_phone:'',
         jt:'',
-        mt:""
-
+        mt:"",
+        addDes:'', // 收货地址 
       }
+    },
+    created() {
+      this.getAddress()
+      this.addTime()
+      this.getMyOrderDes()
     },
     methods: {
       //切换页面
@@ -195,7 +202,7 @@
         this.canjushow = true
 
       },
-      //  获取收货默认地址信息
+      //  获取
       getAddress(){
         let req={
           user_id : localStorage.getItem('uid'),
@@ -203,6 +210,12 @@
         }
         this.Api.post('api/user/default_address',req).then(res=>{
           if (res.code==0){
+            if (res.data){
+
+            } else {
+              this.addDes = '暂无收货地址,请设置'
+            }
+            // console.log
             this.areaName=res.data.area.name
              this.cityName=res.data.city.name
              this.provinceName=res.data.province.name
@@ -239,17 +252,31 @@
         console.log(this.timetext);
 
       },
+
+    // 获取点餐订单详情
+    getMyOrderDes(){
+      let req = {
+        restaurant_id:localStorage.getItem('restaurant_id')
+      }
+      this.Api.post('/api/reserve/get_reserve',req).then(res=>{
+        console.log(res,'get_reserve')
+      })
+    },
+
+
+
+
       //创建订单
       createOrder(){
         let req={
           restaurant_id:localStorage.getItem('restaurant_id'),
-          remarks:'',
-          // address_id: '',
-          // reserve_time: '',
-          // reserve_time_point: '',
-          // reserve_num: '',
-          // room_id: '',
-          // type:0
+          remarks:'', //
+          address_id: '', // 地址id
+          reserve_time: '', // 日期
+          reserve_time_point: '',// 具体时间
+          reserve_num: '', // 用餐人数
+          room_id: '', // 外卖不传
+          type:0
         }
         this.Api.post('/api/reserve/make_reserve',req).then(res=>{
           console.log('成功打印',res);
@@ -284,10 +311,7 @@
         console.log(this.jt, this.mt);
       }
     },
-    beforeCreate() {
-      this.getAddress()
-      this.addTime()
-    },
+
 
   };
 
@@ -386,7 +410,6 @@
 
     .dizishijian {
       position: relative;
-
       width: 714px;
       height: 238px;
       background: rgba(255, 255, 255, 1);
@@ -398,7 +421,9 @@
       .dizi {
         width: 100%;
         height: 145px;
-
+        display: flex;
+        justify-content: center;
+        flex-flow: column;
         z-index: 99999;
 
         .tit {
@@ -406,8 +431,8 @@
           font-family: PingFang SC;
           font-weight: bold;
           color: rgba(51, 51, 51, 1);
-          padding-top: 36px;
-          padding-left: 31px;
+          // padding-top: 36px;
+          padding-left: 5vw;
         }
 
         .name {
