@@ -23,7 +23,7 @@
               <img :src="order.room.private_url" alt />
             </div>
             <div class="info">
-              <p>预约时间：{{ order.create_time }}</p>
+              <p>预约时间1：{{ order.create_time }}</p>
               <p class="price">总价：{{ order.total_money }}元</p>
             </div>
           </div>
