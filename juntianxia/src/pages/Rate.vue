@@ -149,8 +149,10 @@ export default {
         },
     afterRead(file) {
           // 此时可以自行将文件上传至服务器
+          console.log(file)
+          // return
           let req = {
-            file : file.content
+            file : file.file
           }
           this.Api.get('api/index/upload',req)
           	.then(res =>{

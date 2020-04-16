@@ -55,7 +55,12 @@
         this.$router.push('/info')
       },
       toOrder() {
-        this.$router.push('/order')
+        this.$router.push({
+          path:'order',
+          query:{
+            status:3
+          }
+        })
       },
       tovipinfor() {
         this.$router.push('/vipinfor')

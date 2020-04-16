@@ -6,6 +6,7 @@
     </van-nav-bar>
     <van-cell
       v-for="item in newsList"
+      :key="item.id"
       :title="item.news_title"
       :value="item.news_time"
       :label="item.news_content"

@@ -33,7 +33,7 @@
         <div class="img-list">
           <van-swipe :loop="false" :width="100" :height="80" :show-indicators="false">
             <ul>
-              <li v-for="(item,index) in roomInfo.imgArr">
+              <li v-for="(item,index) in roomInfo.imgArr" :key="item.id">
                 <van-swipe-item>
                   <img :src="item" alt="" @click="datu(index,item)" >
                   <div class='button-icon' v-show="index===0 " ref="icon" @click="playVideo"></div>
@@ -54,7 +54,7 @@
         </p>
         <van-divider/>
         <van-grid :border="false" :column-num="3" :gutter="2">
-          <van-grid-item v-for="item in likeList" @click="getData(item.id)">
+          <van-grid-item v-for="item in likeList" @click="getData(item.id)" :key="item.id">
             <van-image :src="item.private_url"/>
           </van-grid-item>
         </van-grid>

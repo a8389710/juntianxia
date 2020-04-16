@@ -13,6 +13,7 @@
       <van-card
         :thumb="item.goods_url"
         v-for="item in list"
+        :key="item.id"
       >
           <div slot="title" class="title">{{item.goods_name}}</div>
           <div slot="desc">

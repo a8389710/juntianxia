@@ -13,7 +13,7 @@
         />
       </van-nav-bar>
       <van-swipe :autoplay="3000" indicator-color="white" class="swipe">
-        <van-swipe-item v-for="item in bannerImg">
+        <van-swipe-item v-for="item in bannerImg" :key="item.id">
           <img :src="item.ad_url" alt="">
         </van-swipe-item>
       </van-swipe>
@@ -56,7 +56,15 @@
     </div>
     <div class="home-nav-title">优选包间</div>
 
-    <div class="swiper-container">
+  <van-swipe :show-indicators="false" class="swiper-container" :loop="false" :width="300">
+    <van-swipe-item class="swiper-slide"  v-for="(item,index) in baojianList" :key="index">          
+      <img class="swiper-img" :src="item.private_url"/>
+          <p class="swiper-title">
+            {{item.private_name}}
+            <span>可预订</span>
+          </p></van-swipe-item>
+  </van-swipe>
+    <!-- <div class="swiper-container">
       <div class="swiper-wrapper">
         <div
           class="swiper-slide"
@@ -71,7 +79,7 @@
           </p>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
@@ -176,7 +184,7 @@
     .swipe-box {
       width: 100%;
       height: 34%;
-      background: aquamarine;
+      background: rgba(127, 255, 212, 0);
       position: relative;
 
       .icon-img {
@@ -210,18 +218,19 @@
       }
 
       .home-choose-box {
-        width: 702px;
-        height: 32%;
-        // margin: 0 auto;
+        width: 95%;
+        height: 40%;
+        margin: -150px auto 0;
         background: rgba(255, 255, 255, 1);
         box-shadow: 0px 3px 16px 0px rgba(0, 0, 0, 0.15);
         border-radius: 36px;
         display: flex;
         justify-content: space-around;
         align-items: center;
-        position: absolute;
-        left: 24px;
-        top: 80%;
+        position: relative;
+        z-index: 1000;
+        // left: 24px;
+        // top: 80%;
 
         li {
           display: flex;
@@ -332,9 +341,9 @@
         width: 80%;
 
         .swiper-img {
-          border-radius: 10px;
+          border-radius: 6vw;
           width: 100%;
-          height: 90%;
+          height: 80%;
           padding: 0 15px;
           box-sizing: border-box;
         }

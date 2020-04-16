@@ -14,6 +14,7 @@
         :thumb="item.goods_url"
         v-for="item in list"
         style="background:#fff"
+        :key="item.id"
 
       >
           <div slot="title" class="title">{{item.goods_name}}</div>

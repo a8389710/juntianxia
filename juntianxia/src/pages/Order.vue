@@ -1,186 +1,147 @@
 <template>
   <div class="order">
     <van-nav-bar title="我的订单" :border="false">
-<!--      <img src="../assets/img/sousuo.png" alt slot="right" class="icon-img" />-->
+      <!--      <img src="../assets/img/sousuo.png" alt slot="right" class="icon-img" />-->
     </van-nav-bar>
-    <van-tabs v-model="activeName" color="#FB7F38">
+    <van-tabs @click="changeTab"  v-model="activeName" color="#FB7F38">
       <!-- 所有订单 -->
 
-      <van-tab  title="全部"  name="0">
-          <div class="orderinfo" v-for="(order,key) in orderList0" :key="key">
-            <div class="title-box">
-              <p class="title">筠天下-{{order.room.private_name}}</p>
-              <p class="status">待评价</p>
+      <van-tab
+        v-for="item in titleList"
+        :key="item.id"
+        :title="item.title"
+        :name="item.id"
+      >
+      <div v-if="orderList.length > 0">
+        <div  class="orderinfo" v-for="(order, key) in orderList" :key="key">
+          <div class="title-box">
+            <p class="title">筠天下-{{ order.room.private_name }}</p>
+            <p class="status">{{ order.desstr }}</p>
+          </div>
+          <div class="detail" @click="toOrderInfo(order.id)">
+            <div class="img-show">
+              <img :src="order.room.private_url" alt />
             </div>
-            <div class="detail" @click="toOrderInfo(order.id)">
-              <div class="img-show">
-                <img :src="order.room.private_url" alt />
-              </div>
-              <div class="info">
-                <p>预约时间：{{order.create_time}} </p>
-                <p class="price">总价：{{order.total_money}}元</p>
-              </div>
-            </div>
-            <div class="btn">
-              <van-button type="default" class="btn-style">再来一单</van-button>
-              <van-button type="default" class="btn-style" @click="toRate(order.id)">评价</van-button>
+            <div class="info">
+              <p>预约时间：{{ order.create_time }}</p>
+              <p class="price">总价：{{ order.total_money }}元</p>
             </div>
           </div>
-
-
-      </van-tab>
-      <van-tab  title="待付款"  name="1">
-1
-<!--        v-if="order.staus==0-->
-          <div class="orderinfo" v-for="(order,key) in orderList1" :key="key">
-            <div class="title-box">
-              <p class="title">筠天下-{{order.private_name}}</p>
-              <p class="status">待评价</p>
-            </div>
-            <div class="detail" @click="toOrderInfo(order.id)">
-              <div class="img-show">
-                <img :src="order.private_url" alt />
-              </div>
-              <div class="info">
-                <p>预约时间：{{order.reserve_time}} {{order.reserve_time_point}}</p>
-                <p class="price">总价：{{order.total_money}}元</p>
-              </div>
-            </div>
-            <div class="btn">
-              <van-button type="default" class="btn-style">再来一单</van-button>
-              <van-button type="default" class="btn-style" @click="toRate(order.id)">评价</van-button>
-            </div>
+          <div class="btn">
+            <van-button type="default" class="btn-style">再来一单</van-button>
+            <van-button
+              type="default"
+              class="btn-style"
+              @click="toRate(order.id)"
+              >评价</van-button
+            >
           </div>
-
-
+        </div>
+      </div>
+      <div v-else>
+        <p class="nolist-tips">暂时没有列表内容噢</p>
+      </div>
       </van-tab>
-      <van-tab title="待评价"  name="2">
-
-2
-<!--          <div class="orderinfo" v-for="(order,key) in orderList">-->
-<!--            <div class="title-box">-->
-<!--              <p class="title">筠天下-{{order.private_name}}</p>-->
-<!--              <p class="status">待评价</p>-->
-<!--            </div>-->
-<!--            <div class="detail" @click="toOrderInfo(order.id)">-->
-<!--              <div class="img-show">-->
-<!--                <img :src="order.private_url" alt />-->
-<!--              </div>-->
-<!--              <div class="info">-->
-<!--                <p>预约时间：{{order.reserve_time}} {{order.reserve_time_point}}</p>-->
-<!--                <p class="price">总价：{{order.total_money}}元</p>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--            <div class="btn">-->
-<!--              <van-button type="default" class="btn-style">再来一单</van-button>-->
-<!--              <van-button type="default" class="btn-style" @click="toRate(order.id)">评价</van-button>-->
-<!--            </div>-->
-<!--          </div>-->
-
-
-      </van-tab>
-      <van-tab title="退款"  name="3">
-3
-
-<!--          <div class="orderinfo" v-for="(order,key) in orderList" >-->
-<!--            <div class="title-box">-->
-<!--              <p class="title">筠天下-{{order.private_name}}</p>-->
-<!--              <p class="status">待评价</p>-->
-<!--            </div>-->
-<!--            <div class="detail" @click="toOrderInfo(order.id)">-->
-<!--              <div class="img-show">-->
-<!--                <img :src="order.private_url" alt />-->
-<!--              </div>-->
-<!--              <div class="info">-->
-<!--                <p>预约时间：{{order.reserve_time}} {{order.reserve_time_point}}</p>-->
-<!--                <p class="price">总价：{{order.total_money}}元</p>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--            <div class="btn">-->
-<!--              <van-button type="default" class="btn-style">再来一单</van-button>-->
-<!--              <van-button type="default" class="btn-style" @click="toRate(order.id)">评价</van-button>-->
-<!--            </div>-->
-<!--          </div>-->
-
-      </van-tab>
-
-
-      <!-- 已评价订单 -->
-
     </van-tabs>
   </div>
 </template>
 <script>
-const title = [
-  {
-    title: "全部",
-    id: "0"
-  },
-  {
-    title: "待付款",
-    id: "1"
-  },
-  {
-    title: "待评价",
-    id: "2"
-  },
-  {
-    title: "退款",
-    id: "3"
-  }
-];
 export default {
   data() {
     return {
       activeName: '0',
-      title: title,
-      orderList0: [],
-      orderList1: [],
-      orderList2: [],
-      orderList3: [],
+      title: "",
+      titleList:[
+        {
+          title: "全部",
+          id: ""
+        },
+        {
+          title: "待付款",
+          id: "1"
+        },
+        {
+          title: "待评价",
+          id: "3"
+        },
+        {
+          title: "退款",
+          id: "5"
+        }
+      ],
+      orderList: [],
       commentList:[],
-      status: 0
+      status: ""
     };
   },
+  created(){
+    let status = this.$route.query.status
+    if (status) {
+      this.status = status
+      this.activeName = status
+      // switch(status){
+      //   case '' :this.activeName = '0';break;
+      //   case '1' :this.activeName = '1';break;
+      //   case '3' :this.activeName = '3';break;
+      //   case '5' :this.activeName = '5';break;
+      // }
+    }
+      this.getOrderList()
+  },
+  mounted() {
+    // this.getOrderList()
+    //切换重新渲染
+    // this.getCommentList()
+  },
   methods:{
-    getOrderList0(){
+    getOrderList(){
+      let status = this.status
       let req = {
+        status:status,
         user_id: localStorage.getItem('uid'),
         list_rows: 10,
         page: 1,
-
       };
 
       this.Api.get('api/reserve/reserve_lists',req)
         .then(res =>{
-          console.log('呵呵',res);
-          this.orderList0 = res.data.data;
+          console.log('订单列表',res);
+// 不传全部订单 0预定中 1待付款 2到店消费 3待评价 4已评价 5退款售后 6退款完成
+          let list = res.data.data
+          list.forEach((order)=>{
+            order.desstr = this.setOrderStatus(order.status)
+          })
+          this.orderList = list
           // console.log('哈哈',this.orderList);
         })
         .catch(err =>{
           console.log(err)
         })
-
     },
-    getOrderList1(){
-      let req = {
-        user_id: localStorage.getItem('uid'),
-        list_rows: 10,
-        page: 1,
-        status:1
-      };
 
-      this.Api.get('api/reserve/reserve_lists',req)
-        .then(res =>{
-          console.log('成功1',res);
-          this.orderList1 = res.data.data;
-          // console.log('哈哈',this.orderList);
-        })
-        .catch(err =>{
-          console.log(err)
-        })
 
+  // 改变tabs页
+  changeTab(status,title){
+    console.log(status,title)
+    this.status = status
+    this.getOrderList()
+  },
+
+    // 设置订单状态
+    setOrderStatus(status){
+      let str = ''
+      switch(status){
+        case 0: str = '预定中';break;
+        case 1: str = '代付款';break;
+        case 2: str = '到店消费';break;
+        case 3: str = '待评价';break;
+        case 4: str = '已评价';break;
+        case 5: str = '退款售后';break;
+        case 6: str = '退款完成';break;
+      }
+      return str
     },
+
     getCommentList(){
       let req = {
           user_id: localStorage.getItem('uid'),
@@ -209,15 +170,15 @@ export default {
       this.$router.push('/orderinfo');
     }
   },
-  mounted() {
-    this.getOrderList0()
-    this.getOrderList1();
-    //切换重新渲染
-    // this.getCommentList()
-  }
+
 };
 </script>
 <style lang="less" scoped>
+.nolist-tips{
+  margin-top:10vw;
+  text-align: center;
+  color:#6b6b6b;
+}
 .order {
   width: 100%;
   height: 100%;
@@ -260,7 +221,7 @@ export default {
     .detail {
       width: 100%;
       height: 156px;
-    //   background: red;
+      //   background: red;
       overflow: hidden;
       .img-show {
         width: 132px;
@@ -296,7 +257,7 @@ export default {
     .btn {
       width: 100%;
       height: 62px;
-    //   background: greenyellow;
+      //   background: greenyellow;
       .btn-style {
         height: 38px;
         font-size: 24px;
@@ -304,7 +265,7 @@ export default {
         font-weight: 400;
         color: rgba(102, 102, 102, 1);
         line-height: 38px;
-        border-radius:6px;
+        border-radius: 6px;
         float: right;
         margin-top: 12px;
         margin-right: 18px;
