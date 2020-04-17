@@ -4,7 +4,7 @@
       <img src="../../assets/img/fanhui.png" alt slot="left" class="icon-img" @click="back" />
     </van-nav-bar>
     <div class="list">
-      <div v-if="address.length == 0" style="color: #666666;text-align: center;margin-top: 20px;font-size: 14px;" >暂时没有地址信息....</div>
+      <div v-if="address.length == 0" style="background-color: #f6f6f6; color: #666666;text-align: center;margin-top: 20px;font-size: 14px;" >暂时没有地址信息....</div>
       <div class="li" v-for="item in address" :key="item">
         <div class="l">
           <div class="xinxi">

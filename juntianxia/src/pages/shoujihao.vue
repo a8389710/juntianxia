@@ -5,10 +5,10 @@
     </van-nav-bar>
     <div class="content">
 
-      <van-field v-model="lodPhonenumber" type="tel" label="手机号"  placeholder="请输入旧的手机号" />
-      <van-field v-model="phonenumber" type="tel" label="手机号"  placeholder="请输入新的手机号" />
+      <!-- <van-field v-model="lodPhonenumber" type="tel" label="手机号"  placeholder="请输入旧的手机号" /> -->
+      <van-field v-model="phone" type="tel" label="手机号"  placeholder="请输入新的手机号" />
       <van-field v-model="mimanumber" type="tel" label="验证码"  placeholder="请输入验证码" />
-       <div class="yanzhenma" @click="getCode" >验证码</div>
+       <div class="yanzhenma" @click="getCode"  >{{content}}</div>
       <div class="btn-login" @click="huanbang">立即换绑</div>
     </div>
   </div>
@@ -19,10 +19,9 @@ import { Toast } from 'vant';
   export default {
     data(){
       return{
-        lodPhonenumber: '',
+        phone: '',
         mimanumber:'',
-        phonenumber:"",
-
+        content:"验证码",
       }
     },
     methods:{
@@ -32,9 +31,9 @@ import { Toast } from 'vant';
       // 修改手机号
       huanbang(){
         let pearm={
-          phone: this.mimanumber,
-          new_vertify: this.phonenumber,
-          old_vertify: this.lodPhonenumber,
+          phone: this.phone,
+          new_vertify: this.mimanumber,
+          // old_vertify: this.lodPhonenumber,
         }
         this.Api.post('/api/user/sendMessage',pearm).then(res =>{
             console.log(res)
@@ -50,6 +49,9 @@ import { Toast } from 'vant';
           })
       },
             // 获取验证码
+            // getCode(){
+ 
+            // }
       getCode() {
         console.log(23)
         let req = {
@@ -72,7 +74,7 @@ import { Toast } from 'vant';
               this.codeStatus = true;
               if(res.code==0){
                 this.authcode=res.data
-                Toast(res.data);
+                // Toast(res.data);
                 // Toast('短信已发送至您的手机，请注意查收');
                 const TIME_count = 60;
                 this.count = TIME_count;
@@ -105,8 +107,6 @@ import { Toast } from 'vant';
               console.log(err)
             })
         }
-
-
       },
 
     }

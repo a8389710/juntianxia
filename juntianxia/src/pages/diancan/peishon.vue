@@ -203,10 +203,7 @@
         }
         this.Api.post('api/user/default_address',req).then(res=>{
           if (res.code==0){
-<<<<<<< HEAD
             if (res.data){
-=======
->>>>>>> 835b6921d154791722218e3aa7471e41a7fabe9a
             this.areaName=res.data.area.name
              this.cityName=res.data.city.name
              this.provinceName=res.data.province.name

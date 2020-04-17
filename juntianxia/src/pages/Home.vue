@@ -2,7 +2,13 @@
   <div class="home">
     <div class="swipe-box">
       <van-nav-bar :border="false" class="home-nav"> 
-        <div slot="title" class="address">美年广场 ></div>
+        <div @click="xzAddress" slot="title" class="address">{{assignment}}
+          <div v-if="downAdd" >
+            <ul class="down" v-for="(item,index) in dataAddress" :key="index">
+              <li @click="dataAssign">{{item.name}}</li>
+            </ul>
+          </div>
+        </div>
         <p slot="title" class="home-title">筠天下</p>
         <img
           src="../assets/img/xiaoxi.png"
@@ -43,6 +49,7 @@
         </li>
       </ul>
     </div>
+
     <div class="home-banner">
       <div class="banner-info">
         <p>MENU</p>
@@ -54,6 +61,7 @@
         <img src alt />
       </div>
     </div>
+
     <div class="home-nav-title">优选包间</div>
 
     <van-swipe :show-indicators="false" class="swiper-container" :loop="false" :width="300">
@@ -84,71 +92,88 @@
   </div>
 </template>
 <script>
-<<<<<<< HEAD
-  import Swiper from "swiper";
-  import "swiper/dist/css/swiper.min.css";
-// import { ShareSheet } from 'vant';
-  export default {
-    data() {
-      return {
-        // 首页数据
-        homeData: {},
-        bannerImg: [],
-        shopTel: "",
-        baojianList: [],
-      };
-=======
 import Swiper from "swiper";
 import "swiper/dist/css/swiper.min.css";
 
+// import { AMapManager } from 'vue-amap';
+
+// -----------------------------
+
+
 export default {
   data() {
+    let self = this;
     return {
       // 首页数据
+      downAdd:false,
       homeData: {},
       bannerImg: [],
       shopTel: "",
-      baojianList: []
+      baojianList: [],
+      dataAddress: [],
+      assignment: '美年广场',
+// ------------------------------------
+        zoom: 12,
+        center: [121.59996, 31.197646],
+        address: '',
+        events: {
+            click(e) {
+              let { lng, lat } = e.lnglat;
+              self.lng = lng;
+              self.lat = lat;
+              // 这里通过高德 SDK 完成。
+              var geocoder = new AMap.Geocoder({
+                radius: 1000,
+                extensions: "all"
+              });        
+              geocoder.getAddress([lng ,lat], function(status, result) {
+                if (status === 'complete' && result.info === 'OK') {
+                  if (result && result.regeocode) {
+                    self.address = result.regeocode.formattedAddress;
+                    self.$nextTick();
+                  }
+                }
+              });        
+            }
+          },
+          lng: 0,
+          lat: 0
+
+// ------------------------------------
+
     };
   },
-  //获取经纬度
-  mounted() {
-    var _this = this;
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        //locationSuccess 获取成功的话
-        function(position) {
-          _this.getLongitude = position.coords.longitude;
-          _this.getLatitude = position.coords.latitude;
-          alert(_this.getLongitude); //弹出经度测试
-          alert(_this.getLatitude);
-          // 将经纬度传给后台获取位置
-          var peram = {
-            lat: _this.getLongitude,
-            lng:_this.getLatitude
-          }
-          this.Api.get("/api/index/restaurant" ,peram).then(res => {
-            this.address = res
-          });
-        },
-        //locationError  获取失败的话
-        function(error) {
-          var errorType = [
-            "您拒绝共享位置信息",
-            "获取不到位置信息",
-            "获取位置信息超时"
-          ];
-          alert(errorType[error.code - 1]);
-        }
-      );
-    }
-  },
+
+
   methods: {
+    // ceshi
+    // lanAdd(){
+    //   var peram = {
+    //     lat: 104.068328,
+    //     lng: 30.534347
+    //   }
+
+    // },
+    // dataAssign(){
+    //   this.dataAssign.name = this.assignment
+    // },
+    // -----------------------------
+    // 选择地址
+    xzAddress(){
+      console.log(this.downAdd)
+      if(this.downAdd == false){
+          this.downAdd = true
+      }else{
+          this.downAdd = false
+      }
+    },
+    Address(){
+      // console.log(23),
+    },
     //跳转
     toInfo() {
       // 消息中心
       this.$router.push("/info");
->>>>>>> 835b6921d154791722218e3aa7471e41a7fabe9a
     },
 
     toTopList() {
@@ -171,8 +196,43 @@ export default {
       this.$router.push("/reserve/showFood");
     }
   },
+  // ----------------
   created() {},
+  // ----------------
   mounted() {
+    // 地图 
+    //获取经纬度
+      var _this = this;
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          //locationSuccess 获取成功的话
+          function(position) {
+            _this.getLongitude = position.coords.longitude;
+            _this.getLatitude = position.coords.latitude;
+            alert(_this.getLongitude); //弹出经度测试
+            alert(_this.getLatitude);
+            // 将经纬度传给后台获取位置
+            var peram = {
+              lat: _this.getLongitude,
+              lng:_this.getLatitude
+            }
+            this.Api.get("/api/index/restaurant" ,peram).then(res => {
+              this.dataAddress = res.data
+              console.log(this.dataAddress )
+            });
+          },
+          //locationError  获取失败的话
+          function(error) {
+            var errorType = [
+              "您拒绝共享位置信息",
+              "获取不到位置信息",
+              "获取位置信息超时"
+            ];
+            alert(errorType[error.code - 1]);
+          }
+        );
+      }
+    // ------------------------------------------------
     //滑动
     var swiper = new Swiper(".swiper-container", {
       effect: "coverflow",
@@ -225,14 +285,31 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+// -------------------------------
+   .amap-demo {
+      height: 300px;
+    }
+// -------------------------------
+
+
 .home {
   width: 100%;
   height: 100%;
   .address {
+    text-align: left;
     position: absolute;
     top: 0px;
     left: 15px;
     color: #ffffff;
+    .down{
+      background: rgba(0, 0, 0, 0.9);
+      width: 250px;
+      margin: -2px -15px;
+      line-height: 50px;
+      font-size: 12px;
+      padding-left: 15px;
+
+    }
   }
   .swipe-box {
     width: 100%;
