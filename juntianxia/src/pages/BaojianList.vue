@@ -6,7 +6,7 @@
       <img src="../assets/img/fanhui.png" alt slot="left" class="icon-img" @click="back" />
     </van-nav-bar>
     <ul class="list-baojian">
-      <li v-for="(item,key) in list" @click="toBaojianDetail(item.id)">
+      <li v-for="(item,index) in list" @click="toBaojianDetail(item.id)" :key="item.id">
         <div class="list-img">
             <img :src="item.private_url" alt="">
         </div>
@@ -44,6 +44,9 @@ export default {
       this.Api.post('/api/room/roomList')
       .then(res =>{
         this.list = res.data.data
+        this.list.forEach((room)=>{
+            room.score = Number(room.score)
+        })
         console.log('包间',this.list);
       })
       .catch(err =>{

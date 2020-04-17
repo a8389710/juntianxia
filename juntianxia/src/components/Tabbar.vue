@@ -5,7 +5,7 @@
           <span>首页</span>
            <img slot="icon" slot-scope="props" :src="props.active ? icon.shouyeActive: icon.shouyeNormal" :class="props.active?'tabbar-img':''"/>
       </van-tabbar-item>
-       <van-tabbar-item name='/diancan/diancancaipin' to="/diancan/diancancaipin">
+       <van-tabbar-item name="/diancancaipin" to="/diancan/diancancaipin">
           <span>点餐</span>
            <img slot="icon" slot-scope="props" :src="props.active ? icon.orderActive: icon.orderNormal" :class="props.active?'tabbar-img':''"/>
       </van-tabbar-item>
@@ -18,6 +18,7 @@
           <img slot="icon" slot-scope="props" :src="props.active ? icon.mineActive: icon.mineNormal" :class="props.active?'tabbar-img':''"/>
       </van-tabbar-item>
     </van-tabbar>
+
   </div>
 </template>
 <script>
@@ -32,8 +33,10 @@ export default {
                 orderNormal:require('../assets/dingdan.png'),
                 mineActive:require('../assets/wodexuanzhong.png'),
                 mineNormal:require('../assets/wode.png')
-            }
+            },
         }
+    },
+    methods:{
     }
 };
 </script>

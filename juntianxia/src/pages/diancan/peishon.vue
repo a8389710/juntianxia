@@ -211,11 +211,6 @@
         this.Api.post('api/user/default_address',req).then(res=>{
           if (res.code==0){
             if (res.data){
-
-            } else {
-              this.addDes = '暂无收货地址,请设置'
-            }
-            // console.log
             this.areaName=res.data.area.name
              this.cityName=res.data.city.name
              this.provinceName=res.data.province.name
@@ -223,7 +218,9 @@
             this.receiving_name=res.data.receiving_name
             this.receiving_phone=res.data.receiving_phone
             console.log('默认地址',res);
-
+            } else {
+              this.addDes = '暂无收货地址,请设置'
+            }
           }
 
  //area   .name

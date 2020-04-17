@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import VueWechatTitle from 'vue-wechat-title'
 import Vant from 'vant';
+// import { ShareSheet } from 'vant';
 import 'vant/lib/index.css';
 import './common/rem.js'
 import Api from './requests/api.js'
@@ -17,6 +18,7 @@ Vue.config.productionTip = false
 Vue.use(VueWechatTitle)
 Vue.use(Vant)
 Vue.use(Vuex)
+// Vue.use(ShareSheet);
 
 /* eslint-disable no-new */
 new Vue({

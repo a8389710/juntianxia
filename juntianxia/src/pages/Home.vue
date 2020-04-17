@@ -85,7 +85,7 @@
 <script>
   import Swiper from "swiper";
   import "swiper/dist/css/swiper.min.css";
-
+// import { ShareSheet } from 'vant';
   export default {
     data() {
       return {

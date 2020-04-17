@@ -3,7 +3,7 @@
     <van-nav-bar title="我的订单" :border="false">
       <!--      <img src="../assets/img/sousuo.png" alt slot="right" class="icon-img" />-->
     </van-nav-bar>
-    <van-tabs @click="changeTab"  v-model="activeName" color="#FB7F38">
+    <van-tabs @click="changeTab" v-model="activeName" color="#FB7F38">
       <!-- 所有订单 -->
 
       <van-tab
@@ -12,46 +12,60 @@
         :title="item.title"
         :name="item.id"
       >
-      <div v-if="orderList.length > 0">
-        <div  class="orderinfo" v-for="(order, key) in orderList" :key="key">
-          <div class="title-box">
-            <p class="title">筠天下-{{ order.room.private_name }}</p>
-            <p class="status">{{ order.desstr }}</p>
-          </div>
-          <div class="detail" @click="toOrderInfo(order.id)">
-            <div class="img-show">
-              <img :src="order.room.private_url" alt />
+        <div v-if="orderList.length > 0">
+          <div class="orderinfo" v-for="(order, key) in orderList" :key="key">
+            <div class="title-box">
+              <p class="title">筠天下-{{ order.room.private_name }}</p>
+              <p class="status">{{ order.desstr }}</p>
             </div>
-            <div class="info">
-              <p>预约时间1：{{ order.create_time }}</p>
-              <p class="price">总价：{{ order.total_money }}元</p>
+            <div class="detail" @click="toOrderInfo(order.id)">
+              <div class="img-show">
+                <img :src="order.room.private_url" alt />
+              </div>
+              <div class="info">
+                <p>预约时间：{{ order.create_time }}</p>
+                <p class="price">总价：{{ order.total_money }}元</p>
+              </div>
             </div>
-          </div>
-          <div class="btn">
-            <van-button type="default" class="btn-style">再来一单</van-button>
-            <van-button
-              type="default"
-              class="btn-style"
-              @click="toRate(order.id)"
-              >评价</van-button
-            >
+            <div class="btn">
+              <van-button
+                v-if="order.status == '0'"
+                type="default"
+                @click="goBackOrder(order)"
+                class="btn-style"
+                >申请退单
+              </van-button>
+              <van-button
+                v-if="order.status == '4'"
+                type="default"
+                class="btn-style"
+                >再来一单
+              </van-button>
+              <van-button
+                v-if="order.status == '3'"
+                type="default"
+                class="btn-style"
+                @click="toRate(order.id)"
+                >评价
+              </van-button>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-else>
-        <p class="nolist-tips">暂时没有列表内容噢</p>
-      </div>
+        <div v-else>
+          <p class="nolist-tips">暂时没有列表内容噢</p>
+        </div>
       </van-tab>
     </van-tabs>
   </div>
 </template>
 <script>
+import { Toast, Dialog } from "vant";
 export default {
   data() {
     return {
-      activeName: '0',
+      activeName: "0",
       title: "",
-      titleList:[
+      titleList: [
         {
           title: "全部",
           id: ""
@@ -70,15 +84,15 @@ export default {
         }
       ],
       orderList: [],
-      commentList:[],
+      commentList: [],
       status: ""
     };
   },
-  created(){
-    let status = this.$route.query.status
+  created() {
+    let status = this.$route.query.status;
     if (status) {
-      this.status = status
-      this.activeName = status
+      this.status = status;
+      this.activeName = status;
       // switch(status){
       //   case '' :this.activeName = '0';break;
       //   case '1' :this.activeName = '1';break;
@@ -86,98 +100,134 @@ export default {
       //   case '5' :this.activeName = '5';break;
       // }
     }
-      this.getOrderList()
+    this.getOrderList();
   },
   mounted() {
     // this.getOrderList()
     //切换重新渲染
     // this.getCommentList()
   },
-  methods:{
-    getOrderList(){
-      let status = this.status
+  methods: {
+    // 申请退款
+    goBackOrder(item) {
+      Dialog.confirm({
+        title: "提示",
+        message: "确定退单吗?"
+      })
+        .then(() => {
+          // on confirm
+          let req = {
+            id: item.id
+          };
+          this.Api.post("api/reserve/reserve_back", req).then(res => {
+            console.log(res);
+            if (res.code == "0") {
+              Toast.success("退单成功");
+              this.getOrderList();
+            }
+          });
+        })
+        .catch(() => {
+          // on cancel
+        });
+    },
+
+    getOrderList() {
+      let status = this.status;
       let req = {
-        status:status,
-        user_id: localStorage.getItem('uid'),
+        status: status,
+        user_id: localStorage.getItem("uid"),
         list_rows: 10,
-        page: 1,
+        page: 1
       };
 
-      this.Api.get('api/reserve/reserve_lists',req)
-        .then(res =>{
-          console.log('订单列表',res);
-// 不传全部订单 0预定中 1待付款 2到店消费 3待评价 4已评价 5退款售后 6退款完成
-          let list = res.data.data
-          list.forEach((order)=>{
-            order.desstr = this.setOrderStatus(order.status)
-          })
-          this.orderList = list
+      this.Api.get("api/reserve/reserve_lists", req)
+        .then(res => {
+          console.log("订单列表", res);
+          // 不传全部订单 0预定中 1待付款 2到店消费 3待评价 4已评价 5退款售后 6退款完成
+          let list = res.data.data;
+          list.forEach(order => {
+            order.desstr = this.setOrderStatus(order.status);
+          });
+          this.orderList = list;
           // console.log('哈哈',this.orderList);
         })
-        .catch(err =>{
-          console.log(err)
-        })
+        .catch(err => {
+          console.log(err);
+        });
     },
 
-
-  // 改变tabs页
-  changeTab(status,title){
-    console.log(status,title)
-    this.status = status
-    this.getOrderList()
-  },
+    // 改变tabs页
+    changeTab(status, title) {
+      console.log(status, title);
+      this.status = status;
+      this.getOrderList();
+    },
 
     // 设置订单状态
-    setOrderStatus(status){
-      let str = ''
-      switch(status){
-        case 0: str = '预定中';break;
-        case 1: str = '代付款';break;
-        case 2: str = '到店消费';break;
-        case 3: str = '待评价';break;
-        case 4: str = '已评价';break;
-        case 5: str = '退款售后';break;
-        case 6: str = '退款完成';break;
+    setOrderStatus(status) {
+      let str = "";
+      switch (status) {
+        case 0:
+          str = "预定中";
+          break;
+        case 1:
+          str = "代付款";
+          break;
+        case 2:
+          str = "到店消费";
+          break;
+        case 3:
+          str = "待评价";
+          break;
+        case 4:
+          str = "已评价";
+          break;
+        case 5:
+          str = "退款售后";
+          break;
+        case 6:
+          str = "退款完成";
+          break;
       }
-      return str
+      return str;
     },
 
-    getCommentList(){
+    getCommentList() {
       let req = {
-          user_id: localStorage.getItem('uid'),
-          list_rows: 99,
-          page: 1,
-        };
+        user_id: localStorage.getItem("uid"),
+        list_rows: 99,
+        page: 1
+      };
 
-      this.Api.get('api/evaluate/lists',req)
-      		.then(res =>{
-            console.log('含啊哈哈',res);
-            this.orderList = res.data.data;
-            console.log(this.orderList);
-      		})
-      		.catch(err =>{
-      		  console.log(err)
-      		})
+      this.Api.get("api/evaluate/lists", req)
+        .then(res => {
+          console.log("含啊哈哈", res);
+          this.orderList = res.data.data;
+          console.log(this.orderList);
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
-    toRate(id){
+    toRate(id) {
       console.log(id);
-      localStorage.setItem('commentID',id);
-      this.$router.push('/rate');
+      localStorage.setItem("commentID", id);
+      this.$router.push("/rate");
     },
-    toOrderInfo(rid){
+    toOrderInfo(rid) {
       console.log(rid);
-      localStorage.setItem('oid',rid);
-      this.$router.push('/orderinfo');
+      localStorage.setItem("oid", rid);
+      this.$router.push("/orderinfo");
     }
-  },
-
+  }
 };
 </script>
 <style lang="less" scoped>
-.nolist-tips{
-  margin-top:10vw;
+.nolist-tips {
+  margin-top: 10vw;
   text-align: center;
-  color:#6b6b6b;
+  color: #6b6b6b;
 }
 .order {
   width: 100%;
@@ -264,11 +314,11 @@ export default {
         font-family: PingFang SC;
         font-weight: 400;
         color: rgba(102, 102, 102, 1);
-        line-height: 38px;
+        line-height: 1;
         border-radius: 6px;
         float: right;
         margin-top: 12px;
-        margin-right: 18px;
+        // margin-right: 18px;
       }
     }
   }

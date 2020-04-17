@@ -32,14 +32,10 @@
         <!-- 包间图片列表 -->
         <div class="img-list">
           <van-swipe :loop="false" :width="100" :height="80" :show-indicators="false">
-            <ul>
-              <li v-for="(item,index) in roomInfo.imgArr" :key="item.id">
-                <van-swipe-item>
-                  <img :src="item" alt="" @click="datu(index,item)" >
+                <van-swipe-item v-for="(item,index) in roomInfo.imgArr" :key="item.id">
+                  <img :src="item" alt="" @click="showImgDetail" >
                   <div class='button-icon' v-show="index===0 " ref="icon" @click="playVideo"></div>
                 </van-swipe-item>
-              </li>
-            </ul>
           </van-swipe>
         </div>
       </div>
@@ -53,11 +49,17 @@
           <van-icon name="arrow" size="12" class="to-baojianlist" @click="toBaojianList"/>
         </p>
         <van-divider/>
-        <van-grid :border="false" :column-num="3" :gutter="2">
+          <van-swipe :autoplay="3000" :loop="false" width="100%" :height="180" :show-indicators="false">
+            <van-swipe-item v-for="(item,index) in likeList" :key="item.id">
+              <img :src="item.private_url" alt="" @click="getData(item.id)" >
+              <!-- <div class='button-icon' v-show="index===0 " ref="icon" @click="playVideo"></div> -->
+            </van-swipe-item>
+          </van-swipe>
+        <!-- <van-grid :border="false" :column-num="3" :gutter="2">
           <van-grid-item v-for="item in likeList" @click="getData(item.id)" :key="item.id">
-            <van-image :src="item.private_url"/>
+            <van-image  fit="cover" :src="item.private_url"/>
           </van-grid-item>
-        </van-grid>
+        </van-grid> -->
       </div>
       <div class="btn-reserve" @click="toReserve">立即预约</div>
     </div>
@@ -67,6 +69,11 @@
     <div class="printzhezhzo" ref="printzhezhzo"></div>
     <div class='print'  ref="print"></div>
     <div class='printclose' ref="printclose" @click="closedatu"></div>
+
+<van-image-preview v-model="isDetailImgShow" :images="roomInfo.imgArr" @change="onChange">
+  <template v-slot:index>第{{ activeIndex }}页</template>
+</van-image-preview>
+
 
   </div>
 </template>
@@ -80,10 +87,22 @@
         roomInfo: [],
         likeList: [],
         token: localStorage.getItem('token'),
-        videoSrc: ''
+        videoSrc: '',
+        isDetailImgShow:false,
+        activeIndex:0,
       };
     },
     methods: {
+      // 展现包间详情大图
+      showImgDetail(){
+        this.isDetailImgShow = true
+        this.activeIndex = 1
+      },
+      onChange(index){
+        console.log(index)
+        this.activeIndex = index + 1
+      },
+
       back() {
         this.$router.back(-1);
       },
@@ -94,7 +113,7 @@
         this.Api.get('api/room/roomInfo', req)
           .then(res => {
             this.roomInfo = res.data.roomInfo;
-
+            this.roomInfo.score = Number(this.roomInfo.score)
             localStorage.setItem('roomInfo', JSON.stringify(this.roomInfo));
             localStorage.setItem('room_id', res.data.roomInfo.id);
             this.likeList = res.data.like;
@@ -162,7 +181,6 @@
         console.log(tupianid);
         if (tupianid==0&&this.videoSrc.length!=0){
           console.log('有视频不能点');
-
         }else {
           console.log('可以点');
           let printzhezhzo=this.$refs.printzhezhzo
@@ -172,7 +190,6 @@
           print.style.display = 'block'
           printclose.style.display = 'block'
           print.style.background=`url("${url}")`+'center   center no-repeat'
-
         }
       },
       closedatu(){

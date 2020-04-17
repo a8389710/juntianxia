@@ -7,7 +7,7 @@
       <router-view v-wechat-title="$route.meta.title" />
     </div>
     <div class="footer">
-      <router-view name="tabbar" />
+      <router-view  name="tabbar" />
     </div>
   </div>
 </template>
@@ -15,8 +15,34 @@
 <script>
 export default {
   name: 'App',
-  created(){
-  }
+  data(){
+    return{
+      pathName:''
+    }
+  },
+  watch:{
+    // $route(newv,oldv){
+    //   // console.log(newv,'newv_新路由')
+    //   // console.log(oldv,'oldv_旧路由')
+    //   // this.pathName = newv.name || oldv.name
+    //   // this.setIsShow()
+    // }
+    // this.pathName = this.$route
+    // console.log(this.pathName)
+  },
+  methods:{
+    // 判断要不要展示
+    setIsShow(){
+      let name = this.pathName
+      let isok = true
+      switch(name){
+        case 'dianlei':isok = false;break;
+        case 'peishon':isok = false;break;
+      }
+      console.log(isok,name)
+      return isok
+    },
+  },
 }
 </script>
 

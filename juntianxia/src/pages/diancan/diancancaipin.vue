@@ -13,7 +13,7 @@
     <div class="reserve-pot">
 
       <!-- 一个锅底 -->
-      <div :class="(key%2 ==0)?left:right" v-for="(item,key) in potList" :key="item">
+      <div :class="(key%2 ==0)?left:right" v-for="(item,key) in potList" :key="item.id">
         <div class="img"><img :src="item.pot_url" alt=""></div>
         <div class="detail">
           <div>
@@ -22,9 +22,9 @@
             <!-- <p class="desc-eng">Hemp and slightly spicy,soup base has material</p> -->
             <div class="gd">
               <p class="pot-choice"><span ref=ld v-for="(ld,index) in item.ld" :class="activeClass[index]?'active':''"
-                                          @click="ldChecked(key,index)" :key="ld">{{ld}}</span></p>
+                                          @click="ldChecked(key,index)" :key="ld.id">{{ld}}</span></p>
               <p class="soup-choice"><span v-for="(tl,index) in item.tl" :class="activeClass[index]?'active':''"
-                                           @click="tlChecked(key,index)" :key="tl">{{tl}}</span></p>
+                                           @click="tlChecked(key,index)" :key="tl.id">{{tl}}</span></p>
             </div>
             <p class="price">
               <span>¥{{item.pot_price}}</span>
@@ -38,7 +38,7 @@
 
 
     <div class="cart">
-      <div v-for="item in cartList" :key="item">
+      <div v-for="item in cartList" :key="item.id">
         <!-- 遍历cartList-->
         <p class="food-type">{{item.name}}</p>
         <!-- 加载列表 -->
@@ -95,13 +95,24 @@
             <!-- 一个商品卡结束 -->
 
           </van-list>
-
+ 
         </van-checkbox-group>
       </div>
+
+        <van-share-sheet
+          v-model="isOrderShow"
+          title="选择点餐方式"
+          :options="options"
+          @select="onSelect"
+        />
+
+
+
+
       <van-submit-bar
         :price="this.getTotal.totalPrice*100"
         button-text="立即预定"
-        @submit="toPay"
+        @submit="choseOrderWay"
       >
         <!-- <van-checkbox @click="selectCart(isSelectAll)" v-model="isSelectAll" >全选</van-checkbox> -->
         <!-- <van-checkbox @click="selectCart(isSelectAll)" v-model="isSelectAll" >全选</van-checkbox> -->
@@ -118,7 +129,7 @@
       <div class="middle">
         <p class="title">菜品清单</p>
         <ul class="list">
-          <li v-for="item in commitList" :key="item">
+          <li v-for="item in commitList" :key="item.id">
             <span class="name">{{item.remarks}}</span>
             <span class="num">x{{item.goods_num}}</span>
             <span class="price">¥{{item.price}}</span>
@@ -167,6 +178,11 @@
   export default {
     data() {
       return {
+        options: [
+          { name: '包间预定', icon: require('@/assets/shouyexuanzhong.png'),type:'1' },
+          { name: '外卖配送', icon: require('@/assets/wodexuanzhong.png'),type:'2' },
+        ],
+        isOrderShow:false,
         list: [],
         cartList: [],
         result: [],
@@ -203,6 +219,36 @@
       };
     },
     methods: {
+      // 选择点餐方式
+        onSelect(option) {
+          // Toast(option.name);
+          console.log(option)
+          this.goOrderWay(option.type)
+          this.isOrderShow = false;
+        },
+          // 显示点餐方式
+        choseOrderWay(){
+          this.isOrderShow = true
+        },
+
+        // 配送页面
+        goOrderWay(type){
+          if (type == '1') {
+            // 包间预定
+            // this.$router.push({
+            //   path:''
+            // })
+          }
+          if (type == '2') {
+            // 外卖配送
+            this.$router.push(
+              {
+                path:'/diancan/peishon'
+              }
+            )
+          }
+        },
+
       costInfo() {
 
         // Dialog({ message: '付费预定菜品说明' });

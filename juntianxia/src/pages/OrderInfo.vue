@@ -14,15 +14,28 @@
 
     <div class="info">
       <div class="top">
-        <p class="title">订单已完成</p>
+        <p class="title">{{orderTit}}</p>
         <p class="text">感谢您对筠天下的信任，期待下次光临</p>
-        <van-button type="default" @click="toRate">评价</van-button>
-        <van-button type="default">再来一单</van-button>
+            <van-button 
+              v-if="orderInfo.status == '0'"
+              type="default" @click="goBackOrder(orderInfo)" class="btn-style">申请退单
+            </van-button>
+            <van-button 
+              v-if="orderInfo.status == '4'"
+              type="default" class="btn-style">再来一单
+            </van-button>
+            <van-button
+              v-if="orderInfo.status == '3'"
+              type="default"
+              class="btn-style"
+              @click="toRate(orderInfo.id)"
+              >评价
+            </van-button>
       </div>
       <div class="middle">
         <p class="title">点菜清单</p>
         <ul class="list">
-          <li v-for="item in foodList">
+          <li v-for="item in foodList" :key="item.id">
             <span class="name">{{item.remarks}}</span>
             <span class="num">x{{item.goods_num}}</span>
             <span class="price">¥{{item.goods_price}}</span>
@@ -40,7 +53,7 @@
   </div>
 </template>
 <script>
-  import { Dialog } from 'vant';
+  import { Dialog,Toast } from 'vant';
 export default {
   data() {
     return {
@@ -53,9 +66,55 @@ export default {
       foodList:[],
       oid: '',
       pri_name:'',
+      orderTit:'', // 详情页分类标题
     };
   },
   methods: {
+
+    // 申请退款
+    goBackOrder(item) {
+      Dialog.confirm({
+        title: "提示",
+        message: "确定退单吗?"
+      })
+        .then(() => {
+          // on confirm
+          let req = {
+            id: item.id
+          };
+          this.Api.post("api/reserve/reserve_back", req).then(res => {
+            if (res.code == "0") {
+              Toast.success("退单成功");
+              this.$router.push({
+                path:'/home'
+              })
+            }
+          });
+        })
+        .catch(() => {
+          // on cancel
+        });
+    },
+
+
+    // 设置订单详情标题
+    setOrderTit(status){
+      // 不传全部订单 0预定中 1待付款 2到店消费 3待评价 4已评价 5退款售后 6退款完成
+      let tit = ''
+      let type = status
+      console.log(type)
+      switch(type){
+        case 0:tit = '预定中';break;
+        case 1:tit = '待付款';break;
+        case 3:tit = '待评价';break;
+        case 4:tit = '已评价';break;
+        case 6:tit = '退款完成';break;
+      }
+      this.orderTit = tit
+      console.log(this.orderTit)
+    },
+
+
     back() {
       this.$router.back(-1);
     },
@@ -94,9 +153,8 @@ export default {
 		      	.then(res =>{
               console.log(res);
               this.orderInfo = res.data;
-              console.log(this.orderInfo);
+              this.setOrderTit(this.orderInfo.status)
               this.foodList = res.data.goods;
-              console.log(this.foodList);
 		      		})
 		      		.catch(err =>{
 		      		  console.log(err)
