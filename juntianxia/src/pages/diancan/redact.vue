@@ -16,7 +16,6 @@
       @change-detail="onChangeDetail"
     />
 
-
   </div>
 </template>
 <script>

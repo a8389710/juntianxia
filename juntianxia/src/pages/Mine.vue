@@ -70,6 +70,7 @@
 
         this.Api.get('/api/user/myIndex')
           .then(res => {
+            console.log(res)
             this.myData = res.data;
             // console.log('da', this.myData.newsMsg);
             // if (this.myData.newsMsg!=0){

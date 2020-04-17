@@ -292,7 +292,6 @@
                 Toast('锅底添加成功！');
               }
 
-
             })
             .catch(err => {
               console.log(err)
@@ -482,13 +481,14 @@
 
                 if (res.code == 0) {
                   console.log('添加订单', res);
-
                   localStorage.setItem('total_money', this.getTotal.totalPrice);
 
                   this.$router.push('/diancan/peishon');
                 }
+                if(res.code == 1){
+                  Toast(res.msg);
+                }
                 console.log('添加订单失败', this.reserve_id, res, req);
-
               })
               .catch(err => {
                 console.log(err)
