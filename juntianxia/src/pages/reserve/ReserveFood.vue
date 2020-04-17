@@ -8,7 +8,7 @@
       </div>
     </div>
 
-    <!-- 锅底列表 -->
+    <!-- 锅底列表 --> 
     <div class="reserve-pot">
       <!-- 一个锅底 -->
       <div :class="key % 2 == 0 ? left : right" v-for="(item, key) in potList" :key="item.id">
@@ -433,7 +433,6 @@ export default {
       this.Api.get("api/goods/lists", req)
         .then(res => {
           console.log("很饿", res);
-
           this.cartList = res.data;
           for (var i = 0; i < this.cartList.length; i++) {
             for (var j = 0; j < this.cartList[i].data.length; j++) {

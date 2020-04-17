@@ -29,7 +29,7 @@
           </div>
         </div>
       </div>
-      <div class="">
+      <!-- <div class="">
         <div class="balance">
           <div class="ye-img"></div>
           <div class="info">
@@ -41,16 +41,16 @@
           </div>
           <van-checkbox v-model="balenceCheck" disabled></van-checkbox>
         </div>
-      </div>
+      </div> -->
       <div class="">
-        <div class="balance pay-way">
+        <!-- <div class="balance pay-way">
           <div class="wx-img"></div>
           <div class="info">
             <p class>微信支付</p>
           </div>
           <van-checkbox v-model="wxchecked" disabled></van-checkbox>
-        </div>
-        <van-divider />
+        </div> -->
+        <!-- <van-divider /> -->
         <div class="balance pay-way">
           <div class="zfb-img"></div>
           <div class="info">
@@ -59,7 +59,7 @@
           <van-checkbox v-model="zfbchecked"></van-checkbox>
         </div>
       </div>
-      <div class="">
+      <!-- <div class="">
         <div class="balance">
           <div class="jf-img"></div>
           <div class="info">
@@ -74,7 +74,7 @@
           </div>
           <van-checkbox v-model="integralCheck" disabled></van-checkbox>
         </div>
-      </div>
+      </div> -->
       <div class="btn-pay" @click="pay">立即支付</div>
       <div v-html="alipayWap" ref="alipayWap" style="background:none"></div>
     </div>
@@ -179,14 +179,16 @@ export default {
         });
     }
     //一进入页面查看是否支付成功
+
+    // 获取
+
+
   },
   mounted() {
     this.getOrderInfo();
     this.getUserInfo();
     this.reserve_id = localStorage.getItem("reserve_id");
-    this.yfk = localStorage.getItem("total_money");
-    // this.yfk = 0.1
-    // this.total_money = localStorage.getItem('frontMoney');
+    this.yfk = this.$route.query.totalPrice
   }
 };
 </script>
@@ -327,7 +329,7 @@ export default {
         float: right;
       }
       .pay-way {
-        line-height: 2;
+        line-height: 1.4;
       }
       .order-info .info {
         .price {

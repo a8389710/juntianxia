@@ -84,20 +84,6 @@
   </div>
 </template>
 <script>
-<<<<<<< HEAD
-  import Swiper from "swiper";
-  import "swiper/dist/css/swiper.min.css";
-// import { ShareSheet } from 'vant';
-  export default {
-    data() {
-      return {
-        // 首页数据
-        homeData: {},
-        bannerImg: [],
-        shopTel: "",
-        baojianList: [],
-      };
-=======
 import Swiper from "swiper";
 import "swiper/dist/css/swiper.min.css";
 
@@ -148,7 +134,6 @@ export default {
     toInfo() {
       // 消息中心
       this.$router.push("/info");
->>>>>>> 835b6921d154791722218e3aa7471e41a7fabe9a
     },
 
     toTopList() {
