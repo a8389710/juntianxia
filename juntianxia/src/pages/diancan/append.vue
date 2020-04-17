@@ -4,16 +4,25 @@
       <img src="../../assets/img/fanhui.png" alt slot="left" class="icon-img" @click="back" />
     </van-nav-bar>
 
-<!--   show-delete show-set-default   show-search-result      show-postal
--->
+  <!-- show-delete show-set-default   show-search-result      show-postal -->
+
     <van-address-edit
+      ref="addEdit"
       :area-list="areaList"
-      :show-set-default="true"
+      :show-set-default="true" 
       :search-result="searchResult"
       :area-columns-placeholder="['请选择', '请选择', '请选择']"
       @save="onSave"
       @delete="onDelete"
       @change-detail="onChangeDetail"
+    >
+      <template slot=""></template>
+    </van-address-edit>
+
+    <!-- 输入监听选择地址 -->
+    <van-picker v-if="dropDown" class="choice"
+    :columns="columns"
+    @change="onChange" 
     />
 
   </div>
@@ -23,6 +32,14 @@
   export default {
     data() {
       return {
+        save:[],  //保存
+        searchResult: [],
+        dropDown : false , 
+        yuyu: [],
+        columns: [],
+       addrtit:[],// 地理说明list
+       addrList:[],// 地理位置数组
+       choseAddr:{},// 选中地理位置
         areaList:{
           province_list: {
             110000: '北京市',
@@ -47,6 +64,7 @@
             // ....
           }
         },
+        
         //设置默认值
         //    :address-info="addressInfo"-->
         // addressInfo:{
@@ -56,6 +74,9 @@
       };
     },
     methods: {
+      onDelete(){
+        console.log(214)
+      },
       onSave(data) {
 
 // addressDetail: "111"  详细地址
@@ -92,20 +113,69 @@
       getaDdress(){
         this.Api.get('api/index/address')
           .then(res =>{
-
             this.areaList=res.areaList
             console.log('成功', res);
-
-
           })
           .catch(err =>{
             console.log('uibau',err)
           })
-      }
+      },
+      // 地址保存按钮
+      onSave(){
+        var param = {
+            receiving_name: '',  
+            receiving_phone: '',
+            receiving_address: '',
+            is_default: '',
+            province: '',
+            id: '',
+            area: '',
+            city: ''
+          };
+        this.Api.post('api/user_receiving_address/add',param).then(res => {
+          if (res.code == 0) {
+            this.save = res
+            Toast("修改成功");
+             console.log(save)
+          }else{
+            // console.log(err)
+          }
+        })
+      },
+    // 详细地址输入触发弹框
+    // 改变详细地址
+      onChangeDetail(val){
+        if(val !== null){
+          var param = {
+            address: val
+          }
+          this.Api.post('api/user_receiving_address/latlng',param).then(res => {
+            if(res.code == 0){
+              // this.columns = res.data
+              console.log(res.data)
+              this.addrList = res.data
+              let addrtit = []
+              let addrList = res.data
+              addrList.forEach((addr)=>{
+                addrtit.push(addr.address)
+              })
+              this.columns = addrtit
+            }
+        })
+          this.dropDown = true
+          return val='123'
+        }
+      },
+    // 请求地址
+    onChange(picker, value, index) {
+      // Toast(`当前值：${value}, 当前索引：${index}`);
+      this.choseAddr = this.addrList[index]
+      this.dropDown = false
+      this.$refs.addEdit.setAddressDetail(this.choseAddr.address)
+      console.log(this.choseAddr,'选中地理位置') 
     },
-
-
-
+    // 请求经纬度地址
+    },
 
     computed:{},
     mounted() {
@@ -157,5 +227,22 @@
       color:rgba(255,255,255,1);
       line-height:42px;
     }
+  }
+
+  // 输入详细地址下拉框
+  .choice{
+    width: 50%;
+    // height: 300px;
+    background-color: #ffffff;
+    text-align: center;
+    margin: 0 auto;
+    position: absolute;
+    top: 400px;
+    left: 25%;
+    padding: 10px;
+    color: #323233;
+    border-radius: 10px;
+    font-size: 12px;
+
   }
 </style>

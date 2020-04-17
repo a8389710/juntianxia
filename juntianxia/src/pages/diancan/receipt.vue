@@ -4,82 +4,17 @@
       <img src="../../assets/img/fanhui.png" alt slot="left" class="icon-img" @click="back" />
     </van-nav-bar>
     <div class="list">
-      <div class="li">
+      <div v-if="address.length == 0" style="color: #666666;text-align: center;margin-top: 20px;font-size: 14px;" >暂时没有地址信息....</div>
+      <div class="li" v-for="item in address" :key="item">
         <div class="l">
           <div class="xinxi">
-            <span class="xinmin">萱萱</span>
-            <span class="shouji">18528448981</span>
+            <span class="xinmin">{{item.receiving_name}}</span>
+            <span class="shouji">{{item.receiving_phone}}</span>
           </div>
-          <div class="dizhi">四川省成都市双流区蜀南春军大源里1-2-2303号</div>
+          <div class="dizhi">{{item.receiving_address}}</div>
         </div>
         <div class="c"></div>
         <div class="r" @click="toredact">编辑</div>
-      </div>
-      <div class="li">
-        <div class="l">
-          <div class="xinxi">
-            <span class="xinmin">萱萱</span>
-            <span class="shouji">18528448981</span>
-          </div>
-          <div class="dizhi">四川省成都市双流区蜀南春军大源里1-2-2303号</div>
-        </div>
-        <div class="c"></div>
-        <div class="r">编辑</div>
-      </div>
-      <div class="li">
-        <div class="l">
-          <div class="xinxi">
-            <span class="xinmin">萱萱</span>
-            <span class="shouji">18528448981</span>
-          </div>
-          <div class="dizhi">四川省成都市双流区蜀南春军大源里1-2-2303号</div>
-        </div>
-        <div class="c"></div>
-        <div class="r">编辑</div>
-      </div>
-      <div class="li">
-        <div class="l">
-          <div class="xinxi">
-            <span class="xinmin">萱萱</span>
-            <span class="shouji">18528448981</span>
-          </div>
-          <div class="dizhi">四川省成都市双流区蜀南春军大源里1-2-2303号</div>
-        </div>
-        <div class="c"></div>
-        <div class="r">编辑</div>
-      </div>
-      <div class="li">
-        <div class="l">
-          <div class="xinxi">
-            <span class="xinmin">萱萱</span>
-            <span class="shouji">18528448981</span>
-          </div>
-          <div class="dizhi">四川省成都市双流区蜀南春军大源里1-2-2303号</div>
-        </div>
-        <div class="c"></div>
-        <div class="r">编辑</div>
-      </div>
-      <div class="li">
-        <div class="l">
-          <div class="xinxi">
-            <span class="xinmin">萱萱</span>
-            <span class="shouji">18528448981</span>
-          </div>
-          <div class="dizhi">四川省成都市双流区蜀南春军大源里1-2-2303号</div>
-        </div>
-        <div class="c"></div>
-        <div class="r">编辑</div>
-      </div>
-      <div class="li">
-        <div class="l">
-          <div class="xinxi">
-            <span class="xinmin">萱萱</span>
-            <span class="shouji">18528448981</span>
-          </div>
-          <div class="dizhi">四川省成都市双流区蜀南春军大源里1-2-2303号</div>
-        </div>
-        <div class="c"></div>
-        <div class="r">编辑</div>
       </div>
     </div>
      <div class="tianjia" @click="toappend">
@@ -93,7 +28,7 @@
   export default {
     data() {
       return {
-
+        address: [],
       };
     },
     methods: {
@@ -113,19 +48,20 @@
       getaddress(){
         let req={
           user_id:localStorage.getItem('uid'),
-          getall:true
+          getall:true,
+          list_rows:10,
+          page: 1
         }
-        this.Api.get('api/User_Receiving_Address/lists',req)
+        this.Api.post('api/User_Receiving_Address/lists',req)
           .then(res => {
-            console.log('成功请求', res);
+            this.address = res.data .data
+            console.log('成功请求', this.address);
           })
           .catch(err => {
             console.log(err)
           })
       }
     },
-
-
 
     computed:{},
     mounted() {
@@ -168,6 +104,7 @@
             font-family:PingFang SC;
             font-weight:400;
             color:rgba(34,34,34,1);
+            
 
 
             padding-left: 30px;
@@ -213,6 +150,9 @@
       }
     }
     .tianjia{
+      position: fixed;
+      bottom: 20px;
+      background-color: #ffffff;
       width:100%;
       text-align: center;
       padding-top: 100px;
