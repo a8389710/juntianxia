@@ -6,8 +6,7 @@
         @click-left="back"
         color="#fff"
         :border="false"
-      />
-      </van-nav-bar>
+      /> 
       <p class="text-succ">包间预约成功！</p>
       <p class="text-tip">请务必准时到店就餐，逾时1小时预约将自动取消，包间不保留！</p>
       <van-steps nactive-icon="weapp-nav" :active="active" active-color="#fff" active-icon="checked" class="steps"
@@ -34,7 +33,7 @@
         <span>{{orderInfo.name}} {{orderInfo.phone}}</span>
       </p>
       <div class="btns">
-        <div class="to-food" @click="toReserveFood">预定菜品></div>
+        <div class="to-food" @click="toReserveFood">预定菜品</div>
         <div class="cancel" @click="cancel">取消订单</div>
       </div>
     </div>
@@ -58,12 +57,19 @@
       };
     },
     methods: {
-      back() {
+      back() { 
         this.$router.back(-1);
       },
       toReserveFood() {
         //预定菜品
-        this.$router.push('/reserve/reservefood');
+        // this.$router.push('/reserve/reservefood');
+        this.$router.push({
+          path:'/diancan/diancancaipin',
+          query:{
+            type:'diannei',
+            orderId:this.$route.query.orderId
+          }
+        });
       },
       cancel() {
         Dialog.confirm({

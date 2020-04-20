@@ -133,7 +133,6 @@
 
         if (item.isSelect) {
           //增加
-
           let req = {
             restaurant_id:localStorage.getItem('restaurant_id'),
             user_id: localStorage.getItem('uid'),
@@ -162,17 +161,13 @@
         } else {
           //减少
           let req = {
-
             id: item.goods_id,
             goods_num:item.goods_num,
             room_id:localStorage.getItem('destine_roomID'),
             restaurant_id:localStorage.getItem('restaurant_id'),
             type: item.pot
-
             //type为0的话是锅底
           };
-
-
           this.Api.post('api/dining_car/del', req)
             .then(data => {
               if (data.code == 0) {
@@ -247,31 +242,18 @@
 
 
               }
-
             }else {
               console.log('请求失败');
             }
-
-            // this.cartList = res.data.data;
-            // var _this = this;
-            // //为productList添加select（是否选中）字段，初始值为true
-            // this.cartList.map(function (item) {
-            //   _this.$set(item, 'isSelect', false);
-            //   _this.$set(item, 'restaurant_id', _this.rid);
-            // });
-            // console.log('餐车', res, this.cartList);
-            //遍历添加锅和菜品
-
           })
           .catch(err => {
-            console.log('哈哈', err)
+            console.log('', err)
           })
 
       },
       onLoad() {
       },
       toPay() {
-
         if (this.getTotal.totalPrice != 0) {
             this.yfk = this.getTotal.totalYfk;
             console.log(this.yfk);
@@ -286,16 +268,13 @@
 
             this.Api.post('api/dining_car/addreserve', req)
               .then(res => {
-
+                console.log(res,'添加点餐订单')
                 if (res.code == 0) {
-                  console.log('添加订单', res);
-                  console.log('添加订单', res);
-
                   localStorage.setItem('total_money', this.getTotal.totalPrice);
-
                   this.$router.push('/diancan/peishon');
+                } else {
+                  console.log('添加订单失败', this.reserve_id, res, req);
                 }
-                console.log('添加订单失败', this.reserve_id, res, req);
 
               })
               .catch(err => {

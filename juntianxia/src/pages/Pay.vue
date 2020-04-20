@@ -29,7 +29,7 @@
           </div>
         </div>
       </div>
-      <div class="">
+      <!-- <div class="">
         <div class="balance">
           <div class="ye-img"></div>
           <div class="info">
@@ -41,16 +41,16 @@
           </div>
           <van-checkbox v-model="balenceCheck" disabled></van-checkbox>
         </div>
-      </div>
+      </div> -->
       <div class="">
-        <div class="balance pay-way">
+        <!-- <div class="balance pay-way">
           <div class="wx-img"></div>
           <div class="info">
             <p class>微信支付</p>
           </div>
           <van-checkbox v-model="wxchecked" disabled></van-checkbox>
-        </div>
-        <van-divider />
+        </div> -->
+        <!-- <van-divider /> -->
         <div class="balance pay-way">
           <div class="zfb-img"></div>
           <div class="info">
@@ -59,7 +59,7 @@
           <van-checkbox v-model="zfbchecked"></van-checkbox>
         </div>
       </div>
-      <div class="">
+      <!-- <div class="">
         <div class="balance">
           <div class="jf-img"></div>
           <div class="info">
@@ -74,7 +74,7 @@
           </div>
           <van-checkbox v-model="integralCheck" disabled></van-checkbox>
         </div>
-      </div>
+      </div> -->
       <div class="btn-pay" @click="pay">立即支付</div>
       <div v-html="alipayWap" ref="alipayWap" style="background:none"></div>
     </div>
@@ -82,7 +82,7 @@
     <van-popup v-model="show" class="layer-box" :close-on-click-overlay="false">
       <p class="title">支付成功</p>
       <p class="money">￥{{ yfk }}</p>
-      <p class="integral">本次支付获得{{ yfk < 0  ? 0 : (yfk / 10) }}积分</p>
+      <p class="integral">本次支付获得{{ yfk < 0 ? 0 : yfk / 10 }}积分</p>
       <div class="btns">
         <div class="to-home" @click="toHome">返回首页</div>
         <div class="to-order" @click="toOrder">返回订单</div>
@@ -114,6 +114,18 @@ export default {
       alipayWap: ""
     };
   },
+
+  created() {
+    // 获取支付通道
+    plus.payment.getChannels(
+      function(channels) {
+        channel = channels[0];
+      },
+      function(e) {
+        alert("获取支付通道失败：" + e.message);
+      }
+    );
+  },
   methods: {
     back() {
       this.$router.back(-1);
@@ -141,12 +153,62 @@ export default {
         });
     },
     payAlipay(res) {
-      let url = res.data;
-      this.alipayWap = url;
-      this.$nextTick(() => {
-        this.$refs.alipayWap.children[0].submit();
-      });
-      console.log("url", url);
+      let airurl = res;
+      console.log(res);
+      var channel = null;
+      document.addEventListener("plusready", plusReady, false);
+      var ALIPAYSERVER =
+        "http://demo.dcloud.net.cn/helloh5/payment/alipay.php?total=";
+      // var WXPAYSERVER='http://demo.dcloud.net.cn/helloh5/payment/wxpay.php?total=';
+       this.payAir('alipay')
+    },
+    // 2. 发起支付请求
+    payAir(id) {
+      // 从服务器请求支付订单
+      var PAYSERVER = "";
+      if (id == "alipay") {
+        PAYSERVER = ALIPAYSERVER;
+      } else if (id == "wxpay") {
+        PAYSERVER = WXPAYSERVER;
+      } else {
+        plus.nativeUI.alert("不支持此支付通道！", null, "捐赠");
+        return;
+      }
+    this.Api(airurl).then(res=>{
+          plus.nativeUI.alert("支付成功！", function() {
+            back();
+          });
+    }).catch(error=>{
+          plus.nativeUI.alert("支付失败：" + error.code);
+    })
+      return
+      var xhr = new XMLHttpRequest(); //uni-app中请使用uni的request api联网
+      xhr.onreadystatechange = function() {
+        switch (xhr.readyState) {
+          case 4:
+            if (xhr.status == 200) {
+              plus.payment.request(
+                channel,
+                xhr.responseText,
+                function(result) {
+                  plus.nativeUI.alert("支付成功！", function() {
+                    back();
+                  });
+                },
+                function(error) {
+                  plus.nativeUI.alert("支付失败：" + error.code);
+                }
+              );
+            } else {
+              alert("获取订单信息失败！");
+            }
+            break;
+          default:
+            break;
+        }
+      };
+      xhr.open("GET", PAYSERVER);
+      xhr.send();
     },
     pay() {
       //微信支付暂时没办法解决
@@ -179,14 +241,14 @@ export default {
         });
     }
     //一进入页面查看是否支付成功
+
+    // 获取
   },
   mounted() {
     this.getOrderInfo();
     this.getUserInfo();
     this.reserve_id = localStorage.getItem("reserve_id");
-    this.yfk = localStorage.getItem("total_money");
-    // this.yfk = 0.1
-    // this.total_money = localStorage.getItem('frontMoney');
+    this.yfk = this.$route.query.totalPrice;
   }
 };
 </script>
@@ -327,7 +389,7 @@ export default {
         float: right;
       }
       .pay-way {
-        line-height: 2;
+        line-height: 1.4;
       }
       .order-info .info {
         .price {

@@ -193,7 +193,7 @@ export default {
 
     toReserve() {
       //菜品预定
-      this.$router.push("/reserve/showFood");
+      this.$router.push("/diancan/diancancaipin");
     }
   },
   // ----------------
@@ -209,8 +209,8 @@ export default {
           function(position) {
             _this.getLongitude = position.coords.longitude;
             _this.getLatitude = position.coords.latitude;
-            alert(_this.getLongitude); //弹出经度测试
-            alert(_this.getLatitude);
+            // alert(_this.getLongitude); //弹出经度测试
+            // alert(_this.getLatitude);
             // 将经纬度传给后台获取位置
             var peram = {
               lat: _this.getLongitude,
@@ -229,7 +229,7 @@ export default {
               "获取不到位置信息",
               "获取位置信息超时"
             ];
-            alert(errorType[error.code - 1]);
+            // alert(errorType[error.code - 1]);
           }
         );
       }
