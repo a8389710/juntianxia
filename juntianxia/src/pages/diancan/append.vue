@@ -10,8 +10,11 @@
       ref="addEdit"
       :area-list="areaList"
       :show-set-default="true" 
+      :address-info="addressInfo"
       :search-result="searchResult"
       :area-columns-placeholder="['请选择', '请选择', '请选择']"
+      @click-area="clickArea"
+      @change-area="changeArea"
       @save="onSave"
       @delete="onDelete"
       @change-detail="onChangeDetail"
@@ -32,6 +35,10 @@
   export default {
     data() {
       return {
+        AddressMsg:{
+
+        },
+        addressInfo:{},
         save:[],  //保存
         searchResult: [],
         dropDown : false , 
@@ -74,21 +81,38 @@
       };
     },
     methods: {
+
+      // 改变城市编码
+      changeArea(val){
+        console.log(val,'改变')
+
+        this.AddressMsg = {
+          province:val[0].code,
+          city:val[1].code,
+          area:val[2].code,
+        }
+
+
+      },
+      clickArea(val){
+        console.log(val,'点击')
+      },
       onDelete(){
         console.log(214)
       },
-      onSave(data) {
-
-// addressDetail: "111"  详细地址
-// areaCode: "130101" 区号
-// city: "石家庄市"  市
-// country: "" 国家
-// county: "市辖区" 县
-// isDefault: true 是否默认地址
-// name: "11" 姓名
-// postalCode: ""  邮编
-// province: "河北省" 省份
-// tel: "13151262952" 电话
+      onSaveTTT(data) {
+          console.log(data,'addres')
+          return
+        // addressDetail: "111"  详细地址
+        // areaCode: "130101" 区号
+        // city: "石家庄市"  市
+        // country: "" 国家
+        // county: "市辖区" 县
+        // isDefault: true 是否默认地址
+        // name: "11" 姓名
+        // postalCode: ""  邮编
+        // province: "河北省" 省份
+        // tel: "13151262952" 电话
         let num
         if (data.isDefault){
            num=1
@@ -121,24 +145,35 @@
           })
       },
       // 地址保存按钮
-      onSave(){
+      onSave(data){
+
+        console.log(data,'addresss')
         var param = {
-            receiving_name: '',  
-            receiving_phone: '',
-            receiving_address: '',
-            is_default: '',
-            province: '',
-            id: '',
-            area: '',
-            city: ''
+            receiving_name: data.name,  
+            receiving_phone: data.tel,
+            receiving_address: data.addressDetail,
+            is_default: data.isDefault?1:0,
+            province:this.AddressMsg.province,
+            city:this.AddressMsg.city,
+            area:this.AddressMsg.area,
           };
-        this.Api.post('api/user_receiving_address/add',param).then(res => {
+
+      let apiAdd = 'api/user_receiving_address/add'
+      let apiUp  = 'api/user_receiving_address/up'
+      let goApi = apiAdd
+        if (this.$route.query.id) {
+          goApi = apiUp
+          param.id = this.$route.query.id
+        }
+
+        this.Api.post(goApi,param).then(res => {
+          console.log(res)
           if (res.code == 0) {
-            this.save = res
-            Toast("修改成功");
-             console.log(save)
+            // this.save = res
+            Toast.success("操作成功");
+            this.$router.back(-1)
           }else{
-            // console.log(err)
+            Toast.error(res.msg)
           }
         })
       },
@@ -178,11 +213,22 @@
     },
 
     computed:{},
-    mounted() {
-
-    },
-    created() {
+    created(){
       this.getaDdress()
+      let locAdd = JSON.parse(localStorage.getItem('addrInfo'))
+      console.log(locAdd)
+      this.addressInfo = {
+        id:locAdd.id,
+        name:locAdd.receiving_name,
+        tel:locAdd.receiving_phone,
+        // province:locAdd.province,
+        // city:locAdd.city,
+        // area:locAdd.area,
+        addressDetail:locAdd.receiving_address,
+        isDefault:locAdd.isDefault
+      }
+    },
+    mounted() {
 
     }
   }

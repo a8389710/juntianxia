@@ -6,7 +6,7 @@
     <van-field v-model="username"   placeholder="填写 >"  input-align="right" label="真实姓名" />
     <van-field v-model="usertel"  placeholder="填写 >" input-align="right"  label="电话" />
     <van-field v-model="birthday"   placeholder="填写 >"  input-align="right" label="生日" />
-    <div class="button">
+    <div class="button" >
       立即完善
     </div>
 

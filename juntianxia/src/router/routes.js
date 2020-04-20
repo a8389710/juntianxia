@@ -356,16 +356,6 @@ export default [
   },
 
   {
-    path: '/diancancaipin',
-    name: 'diancancaipin',
-    components: {
-      default: diancancaipin,
-      meta: {
-        title: '点餐'
-      },
-    }
-  },
-  {
     path: '/diancanchance',
     name: 'diancanchance',
     components: {

@@ -4,17 +4,19 @@
       <img src="../../assets/img/fanhui.png" alt slot="left" class="icon-img" @click="back" />
     </van-nav-bar>
     <div class="list">
-      <div v-if="address.length == 0" style="color: #666666;text-align: center;margin-top: 20px;font-size: 14px;" >暂时没有地址信息....</div>
-      <div class="li" v-for="item in address" :key="item">
+      <div v-if="address.length == 0" style="background-color: #f6f6f6; color: #666666;text-align: center;margin-top: 20px;font-size: 14px;" >暂时没有地址信息....</div>
+      <div class="li" v-for="item in address" :key="item.id">
         <div class="l">
-          <div class="xinxi">
+          <div style="padding-left:4vw" class="xinxi">
+          <van-tag class="addrTips"  color="#fb7f38" v-if="item.is_default == 1" type="danger">默认地址</van-tag>
             <span class="xinmin">{{item.receiving_name}}</span>
             <span class="shouji">{{item.receiving_phone}}</span>
           </div>
           <div class="dizhi">{{item.receiving_address}}</div>
         </div>
         <div class="c"></div>
-        <div class="r" @click="toredact">编辑</div>
+        <div class="r" @click="removeAdd(item)">删除</div>
+        <div class="r" @click="toredact(item)">编辑</div>
       </div>
     </div>
      <div class="tianjia" @click="toappend">
@@ -24,6 +26,7 @@
   </div>
 </template>
 <script>
+import { Toast } from 'vant';
 
   export default {
     data() {
@@ -39,9 +42,33 @@
       toappend(){
         this.$router.push('/append')
       },
+      // 删除地址
+      removeAdd(item){
+        let req = {
+          id:item.id
+        }
+        this.Api.post('api/user_receiving_address/del',req)
+          .then(res => {
+            if (res.code == 0) {
+              Toast.success(res.msg)
+              this.getaddress()
+            } else {
+              Toast.error(res.msg)
+            }
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      },
     //编辑地址
-      toredact(){
-        this.$router.push('/redact')
+      toredact(item){
+        localStorage.setItem('addrInfo',JSON.stringify(item))
+        this.$router.push({
+          path:'/append',
+          query:{
+            id:item.id,
+          }
+        })
 
       },
       //获取地址列表
@@ -79,6 +106,11 @@
     font-weight:500;
     color:rgba(17,17,17,1);
 
+  }
+  .addrTips{
+    position: relative;
+    padding-left:1vw;
+    display: inline-block;
   }
   .receipt {
     width: 100%;

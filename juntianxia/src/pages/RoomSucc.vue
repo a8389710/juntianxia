@@ -64,7 +64,7 @@
         //预定菜品
         // this.$router.push('/reserve/reservefood');
         this.$router.push({
-          path:'/diancancaipin',
+          path:'/diancan/diancancaipin',
           query:{
             type:'diannei',
             orderId:this.$route.query.orderId

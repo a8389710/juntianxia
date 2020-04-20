@@ -277,7 +277,7 @@ export default {
       } else {
         if (this.diancanType == 'diannei') {
           // 店内预约点餐，直接生成订单
-          Toast('店内点餐')
+          // Toast('店内点餐')
           this.makeReserve()
         } else {
           this.isOrderShow = true
@@ -312,6 +312,21 @@ export default {
     },
     // 显示点餐方式
     choseOrderWay() {
+
+      if (this.$route.query.orderId) {
+
+      } else {
+      Dialog.confirm({
+        title:'提示',
+        message: '您需要先预定包间，前往预定？',
+      }).then(()=>{
+        this.$router.push({
+          path:'/baojianlist'
+        })
+      })
+      .catch()
+      }
+
       if (!this.goodsMsg.pot.id) {
         Toast('请选择锅底')
         return
