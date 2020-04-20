@@ -65,7 +65,6 @@
             </div>
           </van-list>
         </van-pull-refresh>
-
       </van-tab>
     </van-tabs>
   </div>
@@ -286,6 +285,7 @@ export default {
   margin-top: 10vw;
   text-align: center;
   color: #6b6b6b;
+  font-size: 0.8rem;
 }
 .order {
   width: 100%;

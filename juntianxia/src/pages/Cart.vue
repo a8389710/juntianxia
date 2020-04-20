@@ -168,11 +168,8 @@
             room_id:localStorage.getItem('destine_roomID'),
             restaurant_id:localStorage.getItem('restaurant_id'),
             type: item.pot
-
             //type为0的话是锅底
           };
-
-
           this.Api.post('api/dining_car/del', req)
             .then(data => {
               if (data.code == 0) {

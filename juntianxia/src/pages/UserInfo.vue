@@ -12,7 +12,7 @@
       </div>
     </van-cell>
 <!--    <van-cell title="昵称" is-link :value="info.nickname"/>-->
-<!--    <van-cell title="生日" is-link :value="info.birthday"/>-->
+<!--    <van-cell title="生日" is-link :value="info.birthday"/> -->
     <van-field
       v-model="nickname"
       label="昵称"
@@ -31,6 +31,7 @@
   </div>
 </template>
 <script>
+import { Toast } from 'vant';
   export default {
     data() {
       return {
@@ -121,10 +122,9 @@
 
         //接口部分
         this.Api.post("/api/user/editUser",req).then(response => {
-
-          if (response.code==0){
-            console.log('修改成功',response);
-
+          if (response.code == 0){
+            Toast("修改成功");
+            console.log(res.msg);
             //.上传成功
           }
         }).catch(function(err) {
@@ -154,6 +154,11 @@
 
     img {
       width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
     }
 
     .icon-img {
@@ -163,6 +168,7 @@
     }
 
     .img-box {
+      overflow:hidden;
       width: 80px;
       height: 80px;
       background: #ccc;

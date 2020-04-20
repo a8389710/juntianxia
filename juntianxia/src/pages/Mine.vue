@@ -1,6 +1,6 @@
 <template>
   <div class="mine">
-    <van-nav-bar title="个人信息" :border="false">
+    <van-nav-bar style=" background-image: linear-gradient(to right, #ff9942 , #fb8139);" title="个人信息" :border="false">
       <img src="../assets/img/xitongshezhi.png" alt slot="right" class="icon-img" @click="toSetting"/>
       <img src="../assets/img/xiaoxi.png" alt slot="right" class="icon-img" style="margin:0" @click="toInfo"/>
     </van-nav-bar>
@@ -98,6 +98,7 @@
     background: #fff;
 
     .icon-img {
+      color: #ffffff;
       width: 33px;
       height: 31px;
       margin-right: 24px;
@@ -119,6 +120,7 @@
         margin-top: 12px;
 
         img {
+          border-radius: 10px;
           width: 100%;
           height: 100%;
         }

@@ -2,7 +2,7 @@
   <div class="top-recommend">
     <van-nav-bar title="美食榜单" :border="false" :fixed="true" :z-index="999">
       <img src="../assets/img/fanhui.png" alt slot="left" class="icon-img" @click="back" />
-      <van-icon name="cart" alt slot="right" color="#333" size="1rem" info="9" @click="toCart" />
+      <van-icon name="cart" alt slot="right" color="#333" size="1rem" :info="badge" @click="toCart" />
     </van-nav-bar>
     <van-tabs :border="false" line-width="40px" color="#F7692B">
       <van-tab title="热度排行" to="/toplist">
@@ -20,17 +20,15 @@
 export default {
   data() {
       return {
-
+          badge: 9,
           };
     },
   methods: {
     back() {
-      this.$router.push('/');
-
+      this.$router.push('/Home');
     },
     toCart(){
       this.$router.push('/Cart');
-
     },
     onLoad() {
           // 异步更新数据

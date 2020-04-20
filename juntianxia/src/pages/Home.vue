@@ -2,7 +2,7 @@
   <div class="home">
     <div class="swipe-box">
       <van-nav-bar :border="false" class="home-nav"> 
-        <div @click="xzAddress" slot="title" class="address">{{assignment}}
+        <div @click="xzAddress" slot="title" class="address">{{assignment.name}}
           <div v-if="downAdd" >
             <ul class="down" v-for="(item,index) in dataAddress" :key="index">
               <li @click="dataAssign">{{item.name}}</li>
@@ -111,7 +111,7 @@ export default {
       shopTel: "",
       baojianList: [],
       dataAddress: [],
-      assignment: '美年广场',
+      assignment: '',
 // ------------------------------------
         zoom: 12,
         center: [121.59996, 31.197646],
@@ -218,6 +218,7 @@ export default {
             }
             this.Api.get("/api/index/restaurant" ,peram).then(res => {
               this.dataAddress = res.data
+              // this.assignment.substring(0) = res.data //slice
               console.log(this.dataAddress )
             });
           },
