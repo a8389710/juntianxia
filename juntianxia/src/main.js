@@ -20,7 +20,6 @@ Vue.use(Vant)
 Vue.use(Vuex)
 // Vue.use(ShareSheet);
 
-
 // 地图
 // Vue.use(VueAMap);
 // VueAMap.initAMapApiLoader({
