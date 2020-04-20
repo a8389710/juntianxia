@@ -6,10 +6,9 @@
         @click-left="back"
         title="订单详情"
         color="#fff"
-        :border="false"
+        :border="false" 
       />
       </van-nav-bar>
-
     </div>
 
     <div class="info">

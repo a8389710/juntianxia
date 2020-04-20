@@ -10,50 +10,62 @@
         v-for="item in titleList"
         :key="item.id"
         :title="item.title"
-        :name="item.id"
+        :name="item.id" 
       >
-        <div v-if="orderList.length > 0">
-          <div class="orderinfo" v-for="(order, key) in orderList" :key="key">
-            <div class="title-box">
-              <p class="title">筠天下-{{ order.room.private_name }}</p>
-              <p class="status">{{ order.desstr }}</p>
-            </div>
-            <div class="detail" @click="toOrderInfo(order.id)">
-              <div class="img-show">
-                <img :src="order.room.private_url" alt />
-              </div>
-              <div class="info">
-                <p>预约时间：{{ order.create_time }}</p>
-                <p class="price">总价：{{ order.total_money }}元</p>
-              </div>
-            </div>
-            <div class="btn">
-              <van-button
-                v-if="order.status == '0'"
-                type="default"
-                @click="goBackOrder(order)"
-                class="btn-style"
-                >申请退单
-              </van-button>
-              <van-button
-                v-if="order.status == '4'"
-                type="default"
-                class="btn-style"
-                >再来一单
-              </van-button>
-              <van-button
-                v-if="order.status == '3'"
-                type="default"
-                class="btn-style"
-                @click="toRate(order.id)"
-                >评价
-              </van-button>
-            </div>
-          </div>
-        </div>
-        <div v-else>
+
+
+        <!-- <div v-else>
           <p class="nolist-tips">暂时没有列表内容噢</p>
-        </div>
+        </div> -->
+
+
+        <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+          <van-list
+            v-model="loading"
+            :finished="finished"
+            finished-text="没有更多了"
+            @load="onLoad"
+          >
+            <div class="orderinfo" v-for="(order, key) in orderList" :key="key">
+              <div class="title-box">
+                <p class="title">筠天下-{{ order.room.private_name }}</p>
+                <p class="status">{{ order.desstr }}</p>
+              </div>
+              <div class="detail" @click="toOrderInfo(order.id)">
+                <div class="img-show">
+                  <img :src="order.room.private_url" alt />
+                </div>
+                <div class="info">
+                  <p>预约时间：{{ order.create_time }}</p>
+                  <p class="price">总价：{{ order.total_money }}元</p>
+                </div>
+              </div>
+              <div class="btn">
+                <van-button
+                  v-if="order.status == '0'"
+                  type="default"
+                  @click="goBackOrder(order)"
+                  class="btn-style"
+                  >申请退单
+                </van-button>
+                <van-button
+                  v-if="order.status == '4'"
+                  type="default"
+                  class="btn-style"
+                  >再来一单
+                </van-button>
+                <van-button
+                  v-if="order.status == '3'"
+                  type="default"
+                  class="btn-style"
+                  @click="toRate(order.id)"
+                  >评价
+                </van-button>
+              </div>
+            </div>
+          </van-list>
+        </van-pull-refresh>
+
       </van-tab>
     </van-tabs>
   </div>
@@ -63,6 +75,10 @@ import { Toast, Dialog } from "vant";
 export default {
   data() {
     return {
+      list: [],
+      loading: false,
+      finished: false,
+      refreshing: false,
       activeName: "0",
       title: "",
       titleList: [
@@ -85,7 +101,9 @@ export default {
       ],
       orderList: [],
       commentList: [],
-      status: ""
+      status: "",
+      current_page:1,// 当前请求页,
+      has_more:false, // 是否有更多
     };
   },
   created() {
@@ -100,14 +118,37 @@ export default {
       //   case '5' :this.activeName = '5';break;
       // }
     }
-    this.getOrderList();
   },
   mounted() {
     // this.getOrderList()
     //切换重新渲染
-    // this.getCommentList()
   },
   methods: {
+    // 下拉渲染列表
+    onLoad() {
+        console.log('请求一次')
+        this.getOrderList()
+      setTimeout(() => {
+        if (this.refreshing) {
+          this.orderList = [];
+          this.refreshing = false;
+        }
+        this.loading = false;
+      }, 1000);
+    },
+
+    // 重新加载
+    onRefresh() {
+      // 清空列表数据
+      this.finished = false;
+      // 重新加载数据
+      // 将 loading 设置为 true，表示处于加载状态
+      this.loading = true;
+      this.orderList = []
+      this.current_page = 1
+      this.onLoad();
+    },
+
     // 申请退款
     goBackOrder(item) {
       Dialog.confirm({
@@ -120,10 +161,11 @@ export default {
             id: item.id
           };
           this.Api.post("api/reserve/reserve_back", req).then(res => {
-            console.log(res);
             if (res.code == "0") {
               Toast.success("退单成功");
-              this.getOrderList();
+              this.orderList = []
+              // this.getOrderList();
+              this.onRefresh()
             }
           });
         })
@@ -138,18 +180,32 @@ export default {
         status: status,
         user_id: localStorage.getItem("uid"),
         list_rows: 10,
-        page: 1
+        page: this.current_page
       };
 
       this.Api.get("api/reserve/reserve_lists", req)
         .then(res => {
-          console.log("订单列表", res);
           // 不传全部订单 0预定中 1待付款 2到店消费 3待评价 4已评价 5退款售后 6退款完成
           let list = res.data.data;
           list.forEach(order => {
             order.desstr = this.setOrderStatus(order.status);
           });
-          this.orderList = list;
+          // Toast.loading({
+          //   message: '加载中...',
+          //   forbidClick: true,
+          //   duration:600,
+          // });
+          setTimeout(()=>{
+            this.orderList = this.orderList.concat(list);
+            this.has_more = res.data.has_more
+            if (res.data.has_more) {
+              this.current_page++
+            } else {
+              // 没有更多了
+              this.finished = true
+              this.loading = false
+            }
+          },500)
           // console.log('哈哈',this.orderList);
         })
         .catch(err => {
@@ -160,8 +216,10 @@ export default {
     // 改变tabs页
     changeTab(status, title) {
       console.log(status, title);
+      this.current_page = 1
+      
       this.status = status;
-      this.getOrderList();
+      this.onRefresh()
     },
 
     // 设置订单状态

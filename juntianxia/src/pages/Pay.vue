@@ -9,7 +9,7 @@
         @click="back"
       />
     </van-nav-bar>
-    <div class="content">
+    <div class="content"> 
       <div class="leave-time">
         <p class="text">支付剩余时间</p>
         <!-- <p class="pay-time"><span>23:59</span></p> -->
@@ -18,17 +18,37 @@
         </p>
         <van-divider />
         <div class="order-info">
-          <div>
+          <!-- <div>
             <img src="../assets/img/active2.jpg" alt="" class="user-img" />
-          </div>
+          </div> -->
           <div class="info">
-            <p class="room-name">筠天下{{ private_name }}</p>
+            <p class="room-name">筠天下-{{ private_name }}</p>
             <p class="price">
               ¥<span>{{ yfk }}</span>
             </p>
           </div>
         </div>
       </div>
+
+      <div class="">
+        <div class="goods-wrap">
+          <div v-for=" (good,idx) in  orderInfo.goods" :key="idx">
+            <div  class="good-show">
+              <van-image
+                width="20vw"
+                height="15vw"
+                fit="cover"
+                :src="good.goods_url"
+              />
+              <p class="name">{{good.goods_name}}</p>
+              <p class="num">{{good.goods_price}} * {{good.goods_num}}</p>
+              <p class="price">{{good.goods_price*good.goods_num}} 元</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
       <!-- <div class="">
         <div class="balance">
           <div class="ye-img"></div>
@@ -53,7 +73,7 @@
         <!-- <van-divider /> -->
         <div class="balance pay-way">
           <div class="zfb-img"></div>
-          <div class="info">
+          <div class="info pay-way">
             <p>支付宝支付</p>
           </div>
           <van-checkbox v-model="zfbchecked"></van-checkbox>
@@ -75,8 +95,8 @@
           <van-checkbox v-model="integralCheck" disabled></van-checkbox>
         </div>
       </div> -->
-      <div class="btn-pay" @click="pay">立即支付</div>
-      <div v-html="alipayWap" ref="alipayWap" style="background:none"></div>
+        <div class="btn-pay" @click="pay">立即支付</div>
+      <div v-html="alipayWap" ref="alipayWap" style="display:none"></div>
     </div>
     <!-- 弹窗 -->
     <van-popup v-model="show" class="layer-box" :close-on-click-overlay="false">
@@ -104,12 +124,12 @@ export default {
       zfbchecked: true,
       reserve_id: "",
       sum: 0,
-      orderInfo: [],
+      orderInfo: {},
       payNum: 0,
       userInfo: [],
       private_name: "",
       yfk: 0,
-      time: 24 * 60 * 60 * 1000,
+      time: 0, // 倒计时
       total_money: 0,
       alipayWap: ""
     };
@@ -127,8 +147,20 @@ export default {
     );
   },
   methods: {
+
+    // 倒计时时间获取处理
+    setDownTime(){
+      let time = this.orderInfo.create_time
+      let timeSeconds = new Date(time).getTime() // 下单时间
+      let nowTime = new Date().getTime() // 当前时间
+      let endTime = timeSeconds + (3600 * 24 * 1000)
+      this.time = (endTime - nowTime)
+    },
+
     back() {
-      this.$router.back(-1);
+      this.$router.push({
+        path:'/home'
+      });
     },
     toHome() {
       this.$router.push("/home");
@@ -182,37 +214,36 @@ export default {
           plus.nativeUI.alert("支付失败：" + error.code);
     })
       return
-      var xhr = new XMLHttpRequest(); //uni-app中请使用uni的request api联网
-      xhr.onreadystatechange = function() {
-        switch (xhr.readyState) {
-          case 4:
-            if (xhr.status == 200) {
-              plus.payment.request(
-                channel,
-                xhr.responseText,
-                function(result) {
-                  plus.nativeUI.alert("支付成功！", function() {
-                    back();
-                  });
-                },
-                function(error) {
-                  plus.nativeUI.alert("支付失败：" + error.code);
-                }
-              );
-            } else {
-              alert("获取订单信息失败！");
-            }
-            break;
-          default:
-            break;
-        }
-      };
-      xhr.open("GET", PAYSERVER);
-      xhr.send();
+      // var xhr = new XMLHttpRequest(); //uni-app中请使用uni的request api联网
+      // xhr.onreadystatechange = function() {
+      //   switch (xhr.readyState) {
+      //     case 4:
+      //       if (xhr.status == 200) {
+      //         plus.payment.request(
+      //           channel,
+      //           xhr.responseText,
+      //           function(result) {
+      //             plus.nativeUI.alert("支付成功！", function() {
+      //               back();
+      //             });
+      //           },
+      //           function(error) {
+      //             plus.nativeUI.alert("支付失败：" + error.code);
+      //           }
+      //         );
+      //       } else {
+      //         alert("获取订单信息失败！");
+      //       }
+      //       break;
+      //     default:
+      //       break;
+      //   }
+      // };
+      // xhr.open("GET", PAYSERVER);
+      // xhr.send();
     },
     pay() {
       //微信支付暂时没办法解决
-
       this.Api.get("/api/pay/alipay_trade", {
         reserve_id: localStorage.getItem("reserve_id")
       })
@@ -233,8 +264,10 @@ export default {
         .then(res => {
           // console.log('11234',res);
           this.orderInfo = res.data;
+        
           // console.log(this.orderInfo);
           this.private_name = res.data.room.private_name;
+          this.setDownTime()
         })
         .catch(err => {
           // console.log(err)
@@ -257,6 +290,45 @@ export default {
   color: orange !important;
   font-size: 1.2rem;
 }
+
+
+.goods-wrap{
+  overflow-y: scroll;
+  max-height: 38vh;
+  .good-show{
+    margin:10px 0;
+    display: flex;
+    // justify-content:space-around; 
+    height: 15vw;
+    p{
+      line-height: 15vw;
+      color:#565656;
+      font-size: 4vw;
+    }
+    .name{
+      width: 35%;
+      margin-left:30px;
+      text-align: left;
+    }
+    .num{
+      width: 35%;
+      text-align: right;
+    }
+    .price{
+      width: 25%;
+      text-align: right;
+    }
+  }
+}
+
+.button-wrap{
+  position: fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+}
+
+
 .pay {
   width: 100%;
   height: 100%;
@@ -279,6 +351,8 @@ export default {
     width: 100%;
   }
   .content {
+    // height: calc(100% - 40px);
+    // overflow-y: scroll;
     padding: 0.7rem;
     .leave-time {
       margin-bottom: 4%;
@@ -287,7 +361,7 @@ export default {
       border-radius: 50px;
       background: orange;
       color: #fff;
-      margin-top: 15%;
+      margin: 10% 0 0;
       text-align: center;
     }
     > div {
@@ -363,8 +437,6 @@ export default {
 
         .info {
           float: left;
-          margin-left: 5%;
-
           span {
             font-size: 1.2rem;
           }
@@ -376,6 +448,7 @@ export default {
           height: 60px;
         }
         .info {
+          margin-left:3%;
           span {
             font-size: 0.7rem;
             color: #bbb;
@@ -392,21 +465,26 @@ export default {
         line-height: 1.4;
       }
       .order-info .info {
+          position: relative;
+          width: 100%;
         .price {
-          float: left;
-          font-size: 24px;
+          position: absolute;
+          right:10px;
+          top:50%;
+          transform: translateY(-50%);
+          font-size: 30px;
           font-family: PingFang SC;
           font-weight: bold;
-          color: rgba(51, 51, 51, 1);
+          color: rgb(196, 4, 4);
           padding-top: 26px;
           span {
-            font-size: 36px;
+            font-size: 40px;
           }
         }
         .room-name {
           float: left;
           padding-top: 31px;
-          font-size: 24px;
+          font-size: 30px;
           font-family: PingFang SC;
           font-weight: 500;
           color: rgba(51, 51, 51, 1);
