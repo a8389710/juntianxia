@@ -1,7 +1,6 @@
 
 <template>
   <div class="reserve-food">
-
     <!-- 加载列表 -->
     <van-list
       class="food-list"
@@ -23,6 +22,7 @@
               void-icon="star"
               void-color="#eee"
               size="14px"
+              readonly
             />
             <span class="star-num">{{item.score}}分</span>
             <span class="sold-num">已售{{item.num}}份</span>
@@ -36,7 +36,6 @@
           </div>
       </van-card>
       <!-- 一个商品卡结束 -->
-
     </van-list>
   </div>
 </template>
@@ -83,8 +82,8 @@ export default {
             console.log(err)
           })
     },
+    // 添加餐车
     addFood(foodDetail){
-
       console.log('foodDetail',foodDetail);
       let req = {
         restaurant_id: foodDetail.restaurant_id,
@@ -92,18 +91,26 @@ export default {
         goods_id: foodDetail.id,
         goods_num: 1,
         goods_price: foodDetail.price,
-        remarks: foodDetail.remarks
-              };
-      this.Api.post('api/dining_car/add',req)
-          .then(res =>{
+        remarks: foodDetail.remarks,
+        type: "1",
+        room_id: '0',
+      };
+      this.Api.post('api/dining_car/add',req).then(res =>{
+        if(res.code == 0){
             console.log('添加成功',res);
             Toast('添加成功');
-         })
+            console.log('我向父组件发射了一个事件');
+            this.$emit('messageData',+1)// 子组件向发射事件, 
+        }
+            
+          })
           .catch(err =>{
             console.log(err)
           })
     },
+    
   },
+
   mounted() {
     this.getList();
   }

@@ -52,7 +52,7 @@
           </div>
         </div>
         <div v-else>
-          <p class="nolist-tips">暂时没有列表内容噢</p>
+          <p class="nolist-tips">暂时没有列表内容噢...</p>
         </div>
       </van-tab>
     </van-tabs>
@@ -228,6 +228,7 @@ export default {
   margin-top: 10vw;
   text-align: center;
   color: #6b6b6b;
+  font-size: 0.8rem;
 }
 .order {
   width: 100%;

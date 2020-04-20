@@ -1,13 +1,11 @@
 <template>
   <div class="order-info">
     <div class="succ-box">
-      <van-nav-bar
-        left-arrow
-        @click-left="back"
-        title="订单详情"
-        color="#fff"
-        :border="false"
-      />
+      <van-nav-bar 
+      title="订单详情" 
+      left-arrow
+      :border="false">
+      <img src="../assets/img/fanhui.png" alt slot="left" class="icon-img" @click="back" />
       </van-nav-bar>
 
     </div>
