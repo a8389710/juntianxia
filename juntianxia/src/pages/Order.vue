@@ -90,8 +90,8 @@ export default {
           id: "1"
         },
         {
-          title: "待评价",
-          id: "3"
+          title: "已完成",
+          id: "2"
         },
         {
           title: "退款",
@@ -275,7 +275,12 @@ export default {
     toOrderInfo(rid) {
       console.log(rid);
       localStorage.setItem("oid", rid);
-      this.$router.push("/orderinfo");
+      this.$router.push({
+        path:'/orderinfo',
+        query:{
+          orderId:rid
+        }
+      });
     }
   }
 };

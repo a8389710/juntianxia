@@ -35,7 +35,9 @@
         timer: null,
         count: "",
         content:"获取验证码",
-        authcode:''
+        authcode:'',
+        token:'',
+        uid:'',
       };
     },
     methods: {
@@ -48,8 +50,6 @@
           phone: this.phone,
           vertify: this.vertify,
         }
-
-
         this.Api.post('/api/user_login/login',req)
           .then(res =>{
             console.log(res)
@@ -136,9 +136,23 @@
       },
     },
     created() {
-
+              if (localStorage.getItem('tel')) {
+                this.phone = JSON.parse(localStorage.getItem('tel'))
+              }
+              if (localStorage.getItem('uid')) {
+                this.uid = JSON.parse(localStorage.getItem('uid'))
+              }
+              if (localStorage.getItem('token')) {
+                this.token = JSON.parse(localStorage.getItem('token'))
+              }
       //判断是否登录
-
+      if (this.token && this.phone && this.uid) {
+        this.$router.push({
+          path:'/home'
+        })
+      } else {
+        localStorage.clear()
+      }
     }
   };
 </script>

@@ -151,7 +151,7 @@ export default {
       userInfo: [],
       private_name: "",
       yfk: 0,
-      time: 0, // 倒计时
+      time: 60, // 倒计时
       total_money: 0,
       alipayWap: "",
       channel:'',
@@ -181,6 +181,10 @@ export default {
         reserve_id: localStorage.getItem("reserve_id")
       })
         .then(res => {
+          setInterval(()=>{
+            this.isMyPayOk()
+          },3000)
+
           var airurl = res;
           var PAYSERVER='';  
           var id  = 'alipay' // 支付方法
@@ -252,6 +256,7 @@ export default {
       let nowTime = new Date().getTime(); // 当前时间
       let endTime = timeSeconds + 3600 * 24 * 1000;
       this.time = Number(endTime) - Number(nowTime);
+      console.log(time,'时间')
     },
 
     back() {
@@ -282,19 +287,43 @@ export default {
         });
     },
 
+
+    // 判断订单是否支付成功
+    isMyPayOk(){
+      let req = {
+        id: localStorage.getItem("reserve_id")
+      };
+      this.Api.get('api/reserve/one',req)
+              .then(res =>{
+                if (res.data.status == 2) {
+                  this.$router.push({
+                    path:'/orderInfo',
+                    query:{
+                      orderId:res.data.id
+                    }
+                  })
+                }
+              })
+              .catch(err =>{
+                console.log(err)
+              })
+    },
+    // 获取订单信息
     getOrderInfo() {
       let req = {
         id: localStorage.getItem("reserve_id")
       };
-      this.Api.get("api/reserve/one", req)
-        .then(res => {
-          this.orderInfo = res.data;
-          this.private_name = res.data.room.private_name;
-          this.setDownTime();
-        })
-        .catch(err => {
-          // console.log(err)
-        });
+    // 获取请求看看有没有订单状态变化
+      this.Api.get('api/reserve/one',req)
+              .then(res =>{
+                console.log(res);
+                this.orderInfo = res.data;
+                this.foodList = res.data.goods;
+                this.setDownTime()
+              })
+              .catch(err =>{
+                console.log(err)
+              })
     }
     //一进入页面查看是否支付成功
 
