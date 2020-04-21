@@ -8,32 +8,36 @@
       <van-list
         class="food-list"
         @load="onLoad"
+        style="padding-bottom: 110px;"
       >
-        <!-- 一个商品卡 -->
+      <div v-if="cartList == 0" style="color: #323233; text-align: center; font-size: 14px; margin-top: 20px;">暂时没有菜品哦</div>
+        <!-- 一个商品卡  -->
         <van-card
           v-for="(item,index) in cartList"
+          :key="index"
           :thumb="item.goods_url"
           style="background: #fff;padding-bottom: 0;"
-          :key="index"
         >
           <div slot="title" class="title">{{item.goods_name}}</div>
           <div slot="desc">
+            <!-- 评分 -->
             <van-rate
               v-model="star_val"
               allow-half
               void-icon="star"
               void-color="#eee"
               size="14px"
+              readonly
             />
             <span class="star-num">{{item.score}}分</span>
             <span class="sold-num">已售{{item.num}}</span>
-
           </div>
           <div slot="desc" class="desc">
             {{item.goods_content}}
           </div>
           <div slot="price" class="price">￥{{item.goods_price}}</div>
           <div slot="footer" class="check-box">
+            <!-- 多选框 -->
             <van-checkbox
               ref="checkboxes"
               :name="item.goods_name"
@@ -45,21 +49,18 @@
               :disabled="item.pot==0"
             />
 
-
-
           </div>
+          <!-- 商品数量添加按钮 -->
           <div slot="footer" class="stepper">
-            <van-stepper  v-model="item.goods_num" button-size="26px"  :disabled="item.pot==0" />
+            <van-stepper v-model="item.goods_num" button-size="26px"  :disabled="item.pot==0" />
           </div>
-
           <div slot="footer" class="isCost" v-show="item.is_pay==1">
             <img src="../assets/img/cost.png" alt="">
           </div>
-
         </van-card>
         <!-- 一个商品卡结束 -->
-
       </van-list>
+
       <van-submit-bar
         :price="getTotal.totalPrice*100"
         button-text="立即预定"
@@ -81,9 +82,8 @@
   export default {
     data() {
       return {
-        cartList: [
-
-        ],
+        cartList: [],
+        cartLists: [],
         loading: false,
         finished: false,
         'star_val': 4.5,
@@ -111,14 +111,12 @@
        for (var i=0;i<this.cartList.length;i++){
          if (this.cartList[i].pot!=0){
            this.cartList[i].isSelect=!this.checked
-
          }
        }
         console.log(this.cartList,this.checked);
       },
       changeItem(item) {
         console.log(item);
-
 //  goods_content: "延年益寿"
 // goods_id: 12
 // goods_name: "养生清汤"
@@ -129,11 +127,9 @@
 // is_pay: 1
 // num: 200
 // score: 4.4
-//
 
         if (item.isSelect) {
           //增加
-
           let req = {
             restaurant_id:localStorage.getItem('restaurant_id'),
             user_id: localStorage.getItem('uid'),
@@ -152,36 +148,42 @@
                 console.log('成功');
               }
               console.log('成功');
-
             })
             .catch(err => {
               console.log(err)
-
             })
 
         } else {
           //减少
-          let req = {
+          
+          Dialog.confirm({
+            title: '标题',
+            message: '你确定删除该商品吗',
+          })
+            .then(() => {
+              console.log(11)
+              let req = {
+                id: item.goods_id,
+                goods_num:item.goods_num,
+                room_id:localStorage.getItem('destine_roomID'),
+                restaurant_id:localStorage.getItem('restaurant_id'),
+                // type: item.pot
+                //type为0的话是锅底
+              };
+              this.Api.post('api/dining_car/del', req)
+                .then(data => {
+                  if (data.code == 0) {
+                    console.log('成功');
+                    this.getCartList()
+                  }
+                  console.log('成功');
+                })
+                })
 
-            id: item.goods_id,
-            goods_num:item.goods_num,
-            room_id:localStorage.getItem('destine_roomID'),
-            restaurant_id:localStorage.getItem('restaurant_id'),
-            type: item.pot
-            //type为0的话是锅底
-          };
-          this.Api.post('api/dining_car/del', req)
-            .then(data => {
-              if (data.code == 0) {
-                console.log('成功');
-              }
-              console.log('成功');
-
-            })
-            .catch(err => {
-              console.log(err)
-
-            })
+                .catch(() => {
+                  console.log(22)
+                  // on cancel
+                });
 
         }
       },
@@ -190,21 +192,20 @@
       },
       getCartList() {
         let req = {
+          page : 1,
           user_id: localStorage.getItem('uid'),
-          list_rows: 999,
           room_id: localStorage.getItem('destine_roomID'),
-          restaurant_id: localStorage.getItem('restaurant_id'),
-          page: 1
+          restaurant_id : localStorage.getItem('restaurant_id'),
+          list_rows : 200,
         };
         //没数据
         console.log('req', req);
-        this.Api.get('api/dining_car/lists', req)
+        this.Api.post('api/dining_car/lists', req)
           .then(res => {
             if (res.code==0){
               console.log('餐车列表', res.data);
-              if(JSON.stringify(res.data.pot) !== '{}'){
-                console.log('添加锅底',res.data.pot);
-
+              if(res.data.pot !== null){
+                // console.log('添加锅底',res.data.pot);
                 this.cartList.push({
                   goods_url:res.data.pot.pot.pot_url,
                   goods_name:res.data.pot.pot.pot_name,
@@ -220,16 +221,14 @@
                 })
                 console.log(this.cartList);
               }
-
               if(JSON.stringify(res.data.goods) !== '[]'){
                 console.log('添加菜品');
-
                  for (var i=0;i<res.data.goods.length;i++){
                    console.log(res.data.goods[i]);
                    this.cartList.push({
                    goods_url:res.data.goods[i].goods.goods_url,
                    goods_name:res.data.goods[i].goods.goods_name,
-                   score:4.4,
+                   score:4,
                    isSelect:true,
                    num:200,
                    goods_num:res.data.goods[i].goods_num,
@@ -237,18 +236,13 @@
                    goods_id:res.data.goods[i].goods_id,
                    goods_content:res.data.goods[i].goods.goods_content,
                    goods_price:res.data.goods[i].goods_price,
-                     pot:1
-
-                   })
+                   pot:1
+                  })
                  }
-
-
               }
-
             }else {
               console.log('请求失败');
             }
-
             // this.cartList = res.data.data;
             // var _this = this;
             // //为productList添加select（是否选中）字段，初始值为true
@@ -258,14 +252,14 @@
             // });
             // console.log('餐车', res, this.cartList);
             //遍历添加锅和菜品
-
           })
           .catch(err => {
-            console.log('哈哈', err)
+            console.log(err)
           })
 
       },
       onLoad() {
+
       },
       toPay() {
 

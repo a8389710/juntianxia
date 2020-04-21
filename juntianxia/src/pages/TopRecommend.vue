@@ -20,7 +20,7 @@
 export default {
   data() {
       return {
-          badge: 9,
+          badge: 4,
           };
     },
   methods: {

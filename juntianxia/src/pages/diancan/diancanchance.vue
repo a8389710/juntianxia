@@ -9,6 +9,8 @@
       class="food-list"
       @load="onLoad"
     >
+      <div v-if="cartList == 0" style="color: #323233; text-align: center; font-size: 14px; margin-top: 20px;">暂时没有菜品哦</div>
+      
       <!-- 一个商品卡 -->
       <van-card
         v-for="(item,index) in cartList"
@@ -189,20 +191,19 @@
       getCartList() {
         let req = {
           user_id: localStorage.getItem('uid'),
-          list_rows: 999,
+          list_rows: 200,
           room_id: localStorage.getItem('destine_roomID'),
           restaurant_id: localStorage.getItem('restaurant_id'),
           page: 1
         };
         //没数据
         console.log('req', req);
-        this.Api.get('api/dining_car/lists', req)
+        this.Api.post('api/dining_car/lists', req)
           .then(res => {
             if (res.code==0){
               console.log('餐车列表', res.data);
-              if(JSON.stringify(res.data.pot) !== '{}'){
+              if(res.data.pot !== null){
                 console.log('添加锅底',res.data.pot);
-
                 this.cartList.push({
                   goods_url:res.data.pot.pot.pot_url,
                   goods_name:res.data.pot.pot.pot_name,
