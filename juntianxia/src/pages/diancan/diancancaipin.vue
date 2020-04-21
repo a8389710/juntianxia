@@ -314,7 +314,11 @@ export default {
     choseOrderWay() {
 
       if (this.$route.query.orderId) {
-
+          if (!this.goodsMsg.pot.id) {
+            Toast('请选择锅底')
+            return
+          }
+          this.show = true;
       } else {
       Dialog.confirm({
         title:'提示',
@@ -324,14 +328,12 @@ export default {
           path:'/baojianlist'
         })
       })
-      .catch()
+      .catch(()=>{
+        
+      })
       }
 
-      if (!this.goodsMsg.pot.id) {
-        Toast('请选择锅底')
-        return
-      }
-      this.show = true;
+
     },
 
     // 配送页面

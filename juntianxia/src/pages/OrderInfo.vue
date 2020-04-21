@@ -7,7 +7,6 @@
       :border="false">
       <img src="../assets/img/fanhui.png" alt slot="left" class="icon-img" @click="back" />
       </van-nav-bar>
-
     </div>
 
     <div class="info">
@@ -32,7 +31,13 @@
       </div>
       <div class="middle">
         <p class="title">点菜清单</p>
-        <ul class="list">
+          <!-- 应该是pot_name -->
+        <ul class="goods-list">
+          <li>
+            <span class="name">{{orderInfo.pot[0].pot_title}}</span> 
+            <span class="num">x{{orderInfo.pot[0].pot_num}}</span>
+            <span class="price">¥{{orderInfo.pot[0].pot_price}}</span>
+          </li>
           <li v-for="item in foodList" :key="item.id">
             <span class="name">{{item.remarks}}</span>
             <span class="num">x{{item.goods_num}}</span>
@@ -104,6 +109,7 @@ export default {
       switch(type){
         case 0:tit = '预定中';break;
         case 1:tit = '待付款';break;
+        case 2:tit = '到店消费';break;
         case 3:tit = '待评价';break;
         case 4:tit = '已评价';break;
         case 6:tit = '退款完成';break;
@@ -145,8 +151,8 @@ export default {
     },
 	getOrderInfo(){
 		let req = {
-			id : this.oid,
-		};
+			id : this.orderId,
+    };
 		this.Api.get('api/reserve/one',req)
 		      	.then(res =>{
               console.log(res);
@@ -158,6 +164,9 @@ export default {
 		      		  console.log(err)
 		      		})
 	}
+  },
+  created() {
+    this.orderId = this.$route.query.orderId
   },
   mounted() {
     this.oid = localStorage.getItem('oid');
@@ -252,7 +261,7 @@ export default {
         border: 1px dashed #bbb;
         border-left: none;
         border-right: none;
-        ul{
+        .goods-list{
           margin-top: 0.6rem;
           li{
             line-height: 2;

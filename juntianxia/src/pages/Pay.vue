@@ -18,17 +18,55 @@
         </p>
         <van-divider />
         <div class="order-info">
-          <div>
+          <!-- <div>
             <img src="../assets/img/active2.jpg" alt="" class="user-img" />
-          </div>
+          </div> -->
           <div class="info">
-            <p class="room-name">筠天下{{ private_name }}</p>
+            <p class="room-name">筠天下-{{ private_name }}</p>
             <p class="price">
               ¥<span>{{ yfk }}</span>
             </p>
           </div>
         </div>
       </div>
+
+      <div class="">
+        <div class="goods-wrap">
+          <div class="good-show">
+            <van-image
+              width="20vw"
+              height="15vw"
+              fit="cover"
+              :src="orderInfo.pot[0].pot_url"
+            />
+            <p class="name">
+              {{ orderInfo.pot[0].pot_title }}
+
+              <van-tag class="pot-tag" type="danger">锅底</van-tag>
+            </p>
+            <p class="num">
+              {{ orderInfo.pot[0].pot_price }} * {{ orderInfo.pot[0].pot_num }}
+            </p>
+            <p class="price">
+              {{ orderInfo.pot[0].pot_price * orderInfo.pot[0].pot_num }} 元
+            </p>
+          </div>
+          <div v-for="(good, idx) in orderInfo.goods" :key="idx">
+            <div class="good-show">
+              <van-image
+                width="20vw"
+                height="15vw"
+                fit="cover"
+                :src="good.goods_url"
+              />
+              <p class="name">{{ good.goods_name }}</p>
+              <p class="num">{{ good.goods_price }} * {{ good.goods_num }}</p>
+              <p class="price">{{ good.goods_price * good.goods_num }} 元</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- <div class="">
         <div class="balance">
           <div class="ye-img"></div>
@@ -53,7 +91,7 @@
         <!-- <van-divider /> -->
         <div class="balance pay-way">
           <div class="zfb-img"></div>
-          <div class="info">
+          <div class="info pay-way">
             <p>支付宝支付</p>
           </div>
           <van-checkbox v-model="zfbchecked"></van-checkbox>
@@ -76,7 +114,7 @@
         </div>
       </div> -->
       <div class="btn-pay" @click="pay">立即支付</div>
-      <div v-html="alipayWap" ref="alipayWap" style="background:none"></div>
+      <div v-html="alipayWap" ref="alipayWap" style="display:none"></div>
     </div>
     <!-- 弹窗 -->
     <van-popup v-model="show" class="layer-box" :close-on-click-overlay="false">
@@ -92,6 +130,8 @@
 </template>
 <script>
 import { Toast } from "vant";
+    // 获取支付通道
+
 export default {
   data() {
     return {
@@ -104,31 +144,125 @@ export default {
       zfbchecked: true,
       reserve_id: "",
       sum: 0,
-      orderInfo: [],
+      orderInfo: {
+        pot: [{}]
+      },
       payNum: 0,
       userInfo: [],
       private_name: "",
       yfk: 0,
-      time: 24 * 60 * 60 * 1000,
+      time: 60, // 倒计时
       total_money: 0,
-      alipayWap: ""
+      alipayWap: "",
+      channel:'',
     };
   },
 
   created() {
-    // 获取支付通道
-    plus.payment.getChannels(
-      function(channels) {
-        channel = channels[0];
-      },
-      function(e) {
-        alert("获取支付通道失败：" + e.message);
-      }
-    );
+    let _this = this
+      plus.payment.getChannels(function(channels){  
+            _this.channel=channels[0];  
+            // alert('获取支付通道ok')
+        },function(e){  
+            alert("获取支付通道失败："+e.message);  
+        });  
+  },
+  mounted() {
+    this.getOrderInfo();
+    this.getUserInfo();
+    this.reserve_id = localStorage.getItem("reserve_id");
+    this.yfk = this.$route.query.totalPrice;
   },
   methods: {
+    // 立即支付
+    pay() {
+      //微信支付暂时没办法解决
+      this.Api.get("/api/pay/alipay_trade", {
+        reserve_id: localStorage.getItem("reserve_id")
+      })
+        .then(res => {
+          setInterval(()=>{
+            this.isMyPayOk()
+          },3000)
+
+          var airurl = res;
+          var PAYSERVER='';  
+          var id  = 'alipay' // 支付方法
+          if (id == "alipay") {
+              PAYSERVER = res;
+              // } else if (id == "wxpay") {
+              //   PAYSERVER = WXPAYSERVER;
+            } else {
+              plus.nativeUI.alert("不支持此支付通道！", null, "捐赠");
+              return;
+            }
+            let channel = this.channel
+              // 手机调用请求
+              plus.payment.request(
+                channel,
+                PAYSERVER,
+                function(result) {
+                  plus.nativeUI.alert("支付成功！", function() {
+                    back();
+                    console.log(result,'支付成功')
+                  });
+                },
+                function(error) {
+                  plus.nativeUI.alert("支付失败：" + error.code);
+                }
+              );
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    // 2. 发起支付请求
+    payAir() {
+      // return;
+      // var xhr = new XMLHttpRequest(); //uni-app中请使用uni的request api联网
+      // xhr.onreadystatechange = function() {
+      //   switch (xhr.readyState) {
+      //     case 4:
+      //       if (xhr.status == 200) {
+      //         plus.payment.request(
+      //           channel,
+      //           xhr.responseText,
+      //           function(result) {
+      //             plus.nativeUI.alert("支付成功！", function() {
+      //               back();
+      //             });
+      //           },
+      //           function(error) {
+      //             plus.nativeUI.alert("支付失败：" + error.code);
+      //           }
+      //         );
+      //       } else {
+      //         alert("获取订单信息失败！");
+      //       }
+      //       break;
+      //     default:
+      //       break;
+      //   }
+      // };
+      // xhr.open("GET", PAYSERVER);
+      // xhr.send();
+    },
+
+
+    // 倒计时时间获取处理
+    setDownTime() {
+      let time = this.orderInfo.create_time;
+      let timeSeconds = new Date(time).getTime(); // 下单时间
+      let nowTime = new Date().getTime(); // 当前时间
+      let endTime = timeSeconds + 3600 * 24 * 1000;
+      this.time = Number(endTime) - Number(nowTime);
+      console.log(time,'时间')
+    },
+
     back() {
-      this.$router.back(-1);
+      this.$router.push({
+        path: "/home"
+      });
     },
     toHome() {
       this.$router.push("/home");
@@ -152,103 +286,48 @@ export default {
           // console.log(err)
         });
     },
-    payAlipay(res) {
-      let airurl = res;
-      console.log(res);
-      var channel = null;
-      document.addEventListener("plusready", plusReady, false);
-      var ALIPAYSERVER =
-        "http://demo.dcloud.net.cn/helloh5/payment/alipay.php?total=";
-      // var WXPAYSERVER='http://demo.dcloud.net.cn/helloh5/payment/wxpay.php?total=';
-       this.payAir('alipay')
-    },
-    // 2. 发起支付请求
-    payAir(id) {
-      // 从服务器请求支付订单
-      var PAYSERVER = "";
-      if (id == "alipay") {
-        PAYSERVER = ALIPAYSERVER;
-      } else if (id == "wxpay") {
-        PAYSERVER = WXPAYSERVER;
-      } else {
-        plus.nativeUI.alert("不支持此支付通道！", null, "捐赠");
-        return;
-      }
-    this.Api(airurl).then(res=>{
-          plus.nativeUI.alert("支付成功！", function() {
-            back();
-          });
-    }).catch(error=>{
-          plus.nativeUI.alert("支付失败：" + error.code);
-    })
-      return
-      var xhr = new XMLHttpRequest(); //uni-app中请使用uni的request api联网
-      xhr.onreadystatechange = function() {
-        switch (xhr.readyState) {
-          case 4:
-            if (xhr.status == 200) {
-              plus.payment.request(
-                channel,
-                xhr.responseText,
-                function(result) {
-                  plus.nativeUI.alert("支付成功！", function() {
-                    back();
-                  });
-                },
-                function(error) {
-                  plus.nativeUI.alert("支付失败：" + error.code);
-                }
-              );
-            } else {
-              alert("获取订单信息失败！");
-            }
-            break;
-          default:
-            break;
-        }
+
+
+    // 判断订单是否支付成功
+    isMyPayOk(){
+      let req = {
+        id: localStorage.getItem("reserve_id")
       };
-      xhr.open("GET", PAYSERVER);
-      xhr.send();
+      this.Api.get('api/reserve/one',req)
+              .then(res =>{
+                if (res.data.status == 2) {
+                  this.$router.push({
+                    path:'/orderInfo',
+                    query:{
+                      orderId:res.data.id
+                    }
+                  })
+                }
+              })
+              .catch(err =>{
+                console.log(err)
+              })
     },
-    pay() {
-      //微信支付暂时没办法解决
-
-      this.Api.get("/api/pay/alipay_trade", {
-        reserve_id: localStorage.getItem("reserve_id")
-      })
-        .then(res => {
-          console.log(res);
-          this.payAlipay(res);
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    },
-
+    // 获取订单信息
     getOrderInfo() {
       let req = {
         id: localStorage.getItem("reserve_id")
       };
-      this.Api.get("api/reserve/one", req)
-        .then(res => {
-          // console.log('11234',res);
-          this.orderInfo = res.data;
-          // console.log(this.orderInfo);
-          this.private_name = res.data.room.private_name;
-        })
-        .catch(err => {
-          // console.log(err)
-        });
+    // 获取请求看看有没有订单状态变化
+      this.Api.get('api/reserve/one',req)
+              .then(res =>{
+                console.log(res);
+                this.orderInfo = res.data;
+                this.foodList = res.data.goods;
+                this.setDownTime()
+              })
+              .catch(err =>{
+                console.log(err)
+              })
     }
     //一进入页面查看是否支付成功
 
     // 获取
-  },
-  mounted() {
-    this.getOrderInfo();
-    this.getUserInfo();
-    this.reserve_id = localStorage.getItem("reserve_id");
-    this.yfk = this.$route.query.totalPrice;
   }
 };
 </script>
@@ -257,6 +336,50 @@ export default {
   color: orange !important;
   font-size: 1.2rem;
 }
+
+.goods-wrap {
+  overflow-y: scroll;
+  max-height: 38vh;
+  .good-show {
+    margin: 10px 0;
+    display: flex;
+    // justify-content:space-around;
+    height: 15vw;
+    p {
+      line-height: 15vw;
+      color: #565656;
+      font-size: 4vw;
+    }
+    .name {
+      width: 35%;
+      margin-left: 2vw;
+      text-align: left;
+      position: relative;
+      .pot-tag {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    }
+    .num {
+      width: 35%;
+      text-align: right;
+    }
+    .price {
+      width: 25%;
+      text-align: right;
+    }
+  }
+}
+
+.button-wrap {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
 .pay {
   width: 100%;
   height: 100%;
@@ -279,6 +402,8 @@ export default {
     width: 100%;
   }
   .content {
+    // height: calc(100% - 40px);
+    // overflow-y: scroll;
     padding: 0.7rem;
     .leave-time {
       margin-bottom: 4%;
@@ -287,13 +412,13 @@ export default {
       border-radius: 50px;
       background: orange;
       color: #fff;
-      margin-top: 15%;
+      margin: 10% 0 0;
       text-align: center;
     }
     > div {
       border-radius: 20px;
       background: #fff;
-      padding: 0.9rem;
+      padding: 3vw;
       margin-bottom: 2%;
       > p {
         text-align: center;
@@ -363,8 +488,6 @@ export default {
 
         .info {
           float: left;
-          margin-left: 5%;
-
           span {
             font-size: 1.2rem;
           }
@@ -376,6 +499,7 @@ export default {
           height: 60px;
         }
         .info {
+          margin-left: 3%;
           span {
             font-size: 0.7rem;
             color: #bbb;
@@ -392,21 +516,26 @@ export default {
         line-height: 1.4;
       }
       .order-info .info {
+        position: relative;
+        width: 100%;
         .price {
-          float: left;
-          font-size: 24px;
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 30px;
           font-family: PingFang SC;
           font-weight: bold;
-          color: rgba(51, 51, 51, 1);
+          color: rgb(196, 4, 4);
           padding-top: 26px;
           span {
-            font-size: 36px;
+            font-size: 40px;
           }
         }
         .room-name {
           float: left;
           padding-top: 31px;
-          font-size: 24px;
+          font-size: 30px;
           font-family: PingFang SC;
           font-weight: 500;
           color: rgba(51, 51, 51, 1);

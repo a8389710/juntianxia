@@ -3,7 +3,7 @@
     <div class="swipe-box">
       <van-nav-bar :border="false" class="home-nav"> 
         <div @click="xzAddress" slot="title" class="address">{{assignment.name}}
-          <div v-if="downAdd" >
+          <div v-if="true" >
             <ul class="down" v-for="(item,index) in dataAddress" :key="index">
               <li @click="dataAssign">{{item.name}}</li>
             </ul>
@@ -111,7 +111,9 @@ export default {
       shopTel: "",
       baojianList: [],
       dataAddress: [],
-      assignment: '',
+      assignment: {
+        name:"默认地址"
+      },
 // ------------------------------------
         zoom: 12,
         center: [121.59996, 31.197646],
@@ -154,18 +156,13 @@ export default {
     //   }
 
     // },
-    // dataAssign(){
-    //   this.dataAssign.name = this.assignment
-    // },
+    dataAssign(){
+      this.dataAssign.name = this.assignment
+    },
     // -----------------------------
     // 选择地址
     xzAddress(){
-      console.log(this.downAdd)
-      if(this.downAdd == false){
-          this.downAdd = true
-      }else{
-          this.downAdd = false
-      }
+        this.downAdd = !this.downAdd
     },
     Address(){
       // console.log(23),
@@ -174,6 +171,16 @@ export default {
     toInfo() {
       // 消息中心
       this.$router.push("/info");
+    },
+
+    // 我的订单
+    goMyOrder(){
+      this.$router.push({
+        path:'/order',
+        query:{
+          status:2
+        }
+      })
     },
 
     toTopList() {
@@ -203,6 +210,14 @@ export default {
     // 地图 
     //获取经纬度
       var _this = this;
+
+      let isMapOk = navigator.geolocation
+      if (isMapOk) {
+        console.log('有地图资格')
+      } else {
+        console.log('没有地图资格')
+      }
+      console.log(isMapOk)
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           //locationSuccess 获取成功的话
@@ -219,7 +234,7 @@ export default {
             this.Api.get("/api/index/restaurant" ,peram).then(res => {
               this.dataAddress = res.data
               // this.assignment.substring(0) = res.data //slice
-              console.log(this.dataAddress )
+              console.log(this.dataAddress,'address')
             });
           },
           //locationError  获取失败的话
@@ -229,6 +244,7 @@ export default {
               "获取不到位置信息",
               "获取位置信息超时"
             ];
+            console.log(errorType,'map err')
             // alert(errorType[error.code - 1]);
           }
         );
@@ -267,6 +283,13 @@ export default {
         // console.log(err)
       });
     //
+    this.Api.get("/api/index/restaurant" ,{}).then(res => {
+      this.dataAddress = res.data
+      // this.assignment.substring(0) = res.data //slice
+      console.log(this.dataAddress,'address')
+    });
+
+
     this.Api.get("api/restaurant/lists")
       .then(res => {
         console.log("餐厅列表", res);
