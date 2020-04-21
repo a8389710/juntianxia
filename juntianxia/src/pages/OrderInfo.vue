@@ -18,6 +18,10 @@
               type="default" @click="goBackOrder(orderInfo)" class="btn-style">申请退单
             </van-button>
             <van-button 
+              v-if="orderInfo.status == '0'"
+              type="default" plain color="#FF9B43" @click="gofukuan()" class="btn-style">立即付款
+            </van-button>
+            <van-button 
               v-if="orderInfo.status == '4'"
               type="default" class="btn-style">再来一单
             </van-button>
@@ -34,9 +38,9 @@
           <!-- 应该是pot_name -->
         <ul class="goods-list">
           <li>
-            <span class="name">{{orderInfo.pot[0].pot_title}}</span> 
-            <span class="num">x{{orderInfo.pot[0].pot_num}}</span>
-            <span class="price">¥{{orderInfo.pot[0].pot_price}}</span>
+            <span class="name">{{orderInfo.pot.pot.pot_title}}</span> 
+            <span class="num">x{{orderInfo.pot.pot.pot_num}}</span>
+            <span class="price">¥{{orderInfo.pot.pot.pot_price}}</span>
           </li>
           <li v-for="item in foodList" :key="item.id">
             <span class="name">{{item.remarks}}</span>
@@ -73,7 +77,6 @@ export default {
     };
   },
   methods: {
-
     // 申请退款
     goBackOrder(item) {
       Dialog.confirm({
@@ -97,6 +100,69 @@ export default {
         .catch(() => {
           // on cancel
         });
+    },
+
+    // 立即付款
+    gofukuan(){
+      this.Api.get("/api/pay/alipay_trade", {
+        reserve_id: localStorage.getItem("reserve_id")
+      })
+        .then(res => {
+          setInterval(()=>{
+            this.isMyPayOk()
+          },3000)
+
+          var airurl = res;
+          var PAYSERVER='';  
+          var id  = 'alipay' // 支付方法
+          if (id == "alipay") {
+              PAYSERVER = res;
+              // } else if (id == "wxpay") {
+              //   PAYSERVER = WXPAYSERVER;
+            } else {
+              plus.nativeUI.alert("不支持此支付通道！", null, "捐赠");
+              return;
+            }
+            let channel = this.channel
+              // 手机调用请求
+              plus.payment.request(
+                channel,
+                PAYSERVER,
+                function(result) {
+                  plus.nativeUI.alert("支付成功！", function() {
+                    back();
+                    console.log(result,'支付成功')
+                  });
+                },
+                function(error) {
+                  plus.nativeUI.alert("支付失败：" + error.code);
+                }
+              );
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+
+    // 判断订单是否支付成功
+    isMyPayOk(){
+      let req = {
+        id: localStorage.getItem("reserve_id")
+      };
+      this.Api.get('api/reserve/one',req)
+        .then(res =>{
+          if (res.data.status == 2) {
+            this.$router.push({
+              path:'/orderInfo',
+              query:{
+                orderId:res.data.id
+              }
+            })
+          }
+        })
+        .catch(err =>{
+          console.log(err)
+        })
     },
 
 

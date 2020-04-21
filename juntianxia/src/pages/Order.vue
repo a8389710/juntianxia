@@ -12,13 +12,6 @@
         :title="item.title"
         :name="item.id" 
       >
-
-
-        <!-- <div v-else>
-          <p class="nolist-tips">暂时没有列表内容噢</p>
-        </div> -->
-
-
         <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
           <van-list
             v-model="loading"
@@ -245,6 +238,9 @@ export default {
           break;
         case 6:
           str = "退款完成";
+          break;
+        case 7:
+          str = "已付款";
           break;
       }
       return str;

@@ -37,18 +37,18 @@
               width="20vw"
               height="15vw"
               fit="cover"
-              :src="orderInfo.pot[0].pot_url"
+              :src="orderInfo.pot.pot.pot_url"
             />
             <p class="name">
-              {{ orderInfo.pot[0].pot_title }}
+              {{ orderInfo.pot.pot.pot_title }}
 
               <van-tag class="pot-tag" type="danger">锅底</van-tag>
             </p>
             <p class="num">
-              {{ orderInfo.pot[0].pot_price }} * {{ orderInfo.pot[0].pot_num }}
+              {{ orderInfo.pot.pot.pot_price }} * {{ orderInfo.pot.pot.pot_num }}
             </p>
             <p class="price">
-              {{ orderInfo.pot[0].pot_price * orderInfo.pot[0].pot_num }} 元
+              {{ orderInfo.pot.pot.pot_price * orderInfo.pot.pot.pot_num }} 元
             </p>
           </div>
           <div v-for="(good, idx) in orderInfo.goods" :key="idx">
@@ -286,7 +286,6 @@ export default {
           // console.log(err)
         });
     },
-
 
     // 判断订单是否支付成功
     isMyPayOk(){

@@ -312,13 +312,7 @@ export default {
     },
     // 显示点餐方式
     choseOrderWay() {
-
       if (this.$route.query.orderId) {
-          if (!this.goodsMsg.pot.id) {
-            Toast('请选择锅底')
-            return
-          }
-          this.show = true;
       } else {
       Dialog.confirm({
         title:'提示',
@@ -328,12 +322,14 @@ export default {
           path:'/baojianlist'
         })
       })
-      .catch(()=>{
-        
-      })
+      .catch()
       }
 
-
+      if (!this.goodsMsg.pot.id) {
+        Toast('请选择锅底')
+        return
+      }
+      this.show = true;
     },
 
     // 配送页面
@@ -586,7 +582,6 @@ export default {
     // 创建订单
     // /api/reserve/make_reserve
     makeReserve(){
-
       // 外卖
       // let req = {
       //   type:'1',// 0 外卖 1 到店
@@ -814,8 +809,10 @@ export default {
     }
   },
   mounted() {
+    // 拿取餐车数据
+    console.log(this.$route.query.id)
+    // ···················································
     this.rid = localStorage.getItem("rid");
-
     this.getCartList();
     // console.log(this.cartList);
     this.getPotList();

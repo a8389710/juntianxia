@@ -31,7 +31,7 @@ export default {
         },
         clearAll(){
           //获取用户信息,然后清除缓存,在重新填入用户信息
-          localStorage.clear();
+          localStorage.clear();   
           Toast('清除成功');
         },
       tozhanhuanquan(){

@@ -25,7 +25,7 @@
               readonly
             />
             <span class="star-num">{{item.score}}分</span>
-            <span class="sold-num">已售{{item.num}}份</span>
+            <span class="sold-num">库存：{{item.num}}</span>
           </div>
           <div slot="desc" class="desc">
             {{item.goods_content}}
@@ -84,6 +84,9 @@ export default {
     },
     // 添加餐车
     addFood(foodDetail){
+      // if(){
+
+      // }
       console.log('foodDetail',foodDetail);
       let req = {
         restaurant_id: foodDetail.restaurant_id,
@@ -93,7 +96,7 @@ export default {
         goods_price: foodDetail.price,
         remarks: foodDetail.remarks,
         type: "1",
-        room_id: '0',
+        room_id:localStorage.getItem('destine_roomID'),
       };
       this.Api.post('api/dining_car/add',req).then(res =>{
         if(res.code == 0){

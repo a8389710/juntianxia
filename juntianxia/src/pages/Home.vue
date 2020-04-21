@@ -3,7 +3,7 @@
     <div class="swipe-box">
       <van-nav-bar :border="false" class="home-nav"> 
         <div @click="xzAddress" slot="title" class="address">{{assignment.name}}
-          <div v-if="true" >
+          <div v-if="false" >
             <ul class="down" v-for="(item,index) in dataAddress" :key="index">
               <li @click="dataAssign">{{item.name}}</li>
             </ul>
@@ -58,7 +58,7 @@
         <p>做最了解你喜好的餐饮品牌</p>
       </div>
       <div class="banner-img" @click="toTopList">
-        <img src alt />
+        <img src="https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=196872901,801904316&fm=26&gp=0.jpg" alt />
       </div>
     </div>
 
@@ -409,7 +409,7 @@ export default {
 
   .home-banner {
     width: 100%;
-    height: 20%;
+    height: 22%;
     //   background: #FB7F38;
     margin-top: 8%;
     display: flex;
@@ -458,9 +458,9 @@ export default {
       width: 403px;
       height: 100%;
       background: palegoldenrod;
-
       img {
         width: 100%;
+        height: 100%;
       }
     }
   }

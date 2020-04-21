@@ -155,13 +155,6 @@
 
         } else {
           //减少
-          
-          Dialog.confirm({
-            title: '标题',
-            message: '你确定删除该商品吗',
-          })
-            .then(() => {
-              console.log(11)
               let req = {
                 id: item.goods_id,
                 goods_num:item.goods_num,
@@ -174,17 +167,14 @@
                 .then(data => {
                   if (data.code == 0) {
                     console.log('成功');
-                    this.getCartList()
                   }
                   console.log('成功');
-                })
                 })
 
                 .catch(() => {
                   console.log(22)
                   // on cancel
                 });
-
         }
       },
       back() {
@@ -259,58 +249,55 @@
 
       },
       onLoad() {
-
+        
       },
+      // 立即预定&跳跳转付款页面
       toPay() {
-
-        if (this.getTotal.totalPrice != 0) {
-          if (this.reserve_id) {
-            this.yfk = this.getTotal.totalYfk;
-            console.log(this.yfk);
-            localStorage.setItem('yfk', this.yfk);
-            console.log('打印', this.commitList);
-            //提交订单
-            let req = {
-              reserve_id: this.reserve_id,
-              add_type: 0,
-              info: JSON.stringify(this.info)
-            };
-
-            this.Api.post('api/dining_car/addreserve', req)
-              .then(res => {
-
-                if (res.code == 0) {
-                  console.log('添加订单', res);
-
-                  localStorage.setItem('total_money', this.getTotal.totalPrice);
-
-                  this.$router.push('/pay');
-                }
-                console.log('添加订单失败', this.reserve_id, res, req);
-
-              })
-              .catch(err => {
-                console.log(err)
-              })
-          } else {
-            Dialog.confirm({
-              title: '需要先预定包间哦',
-              message: '现在去预定'
-            }).then(() => {
-              // on confirm
-              this.$router.push('/baojianlist');
-            }).catch(() => {
-            });
-          }
-        } else {
-          Dialog.alert({
-            title: '提示！',
-            message: '还没有选择菜品哦~'
-          })
-        }
-
+        this.$router.push({path:'/diancan/diancancaipin',query: {id:'1'}})
+        // if (this.getTotal.totalPrice != 0) {
+        //   if (this.reserve_id) {
+        //     this.yfk = this.getTotal.totalYfk;
+        //     console.log(this.yfk);
+        //     localStorage.setItem('yfk', this.yfk);
+        //     console.log('打印', this.commitList);
+        //     //提交订单
+        //     let req = {
+        //       reserve_id: this.reserve_id,
+        //       add_type: 0,
+        //       info: JSON.stringify(this.info)
+        //     };
+        //     this.Api.post('api/dining_car/addreserve', req)
+        //       .then(res => {
+        //         if (res.code == 0) {
+        //           console.log('添加订单', res);
+        //           localStorage.setItem('total_money', this.getTotal.totalPrice);
+        //           this.$router.push('/pay');
+        //         }
+        //         console.log('添加订单失败', this.reserve_id, res, req);
+        //       })
+        //       .catch(err => {
+        //         console.log(err)
+        //       })
+        //   } else {
+        //     Dialog.confirm({
+        //       title: '需要先预定包间哦',
+        //       message: '现在去预定'
+        //     }).then(() => {
+        //       // on confirm
+        //       this.$router.push('/baojianlist');
+        //     }).catch(() => {
+        //     });
+        //   }
+        // } else {
+        //   Dialog.alert({
+        //     title: '提示！',
+        //     message: '还没有选择菜品哦~'
+        //   })
+        // }
+      
 
       },
+
       //
       selectCart: function (_isSelect) {
         //遍历cartList，全部取反

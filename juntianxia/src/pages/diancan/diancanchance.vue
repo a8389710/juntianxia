@@ -254,6 +254,7 @@
       },
       onLoad() {
       },
+      
       toPay() {
         if (this.getTotal.totalPrice != 0) {
             this.yfk = this.getTotal.totalYfk;
