@@ -18,16 +18,18 @@ Vue.config.productionTip = false
 Vue.use(VueWechatTitle)
 Vue.use(Vant)
 Vue.use(Vuex)
-// Vue.use(ShareSheet);
+
+import VueAMap from 'vue-amap';
+Vue.use(VueAMap);
 
 // 地图
-// Vue.use(VueAMap);
-// VueAMap.initAMapApiLoader({
-//   key: 'your amap key',
-//   plugin: ['AMap.Autocomplete', 'AMap.PlaceSearch', 'AMap.Scale', 'AMap.OverView', 'AMap.ToolBar', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor'],
-//   // 默认高德 sdk 版本为 1.4.4
-//   v: '1.4.4'
-// });
+VueAMap.initAMapApiLoader({
+  key: '2e3312741a5172ebdc075701b00f865d',
+  plugin: ['AMap.Autocomplete', 'AMap.PlaceSearch', 'AMap.Scale', 'AMap.OverView', 'AMap.ToolBar', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor'],
+  // 默认高德 sdk 版本为 1.4.4
+  v: '1.4.4'
+});
+
 
 // -----------------------
 

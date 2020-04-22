@@ -149,8 +149,7 @@ export default {
       let req = {
         id: localStorage.getItem("reserve_id")
       };
-      this.Api.get('api/reserve/one',req)
-        .then(res =>{
+      this.Api.get('api/reserve/one',req).then(res =>{
           if (res.data.status == 2) {
             this.$router.push({
               path:'/orderInfo',
@@ -204,13 +203,13 @@ export default {
           id : localStorage.getItem('oid'),
         }
         this.Api.get('api/reserve/del',req)
-              	.then(res =>{
-                  console.log(res);
-                  this.$router.push('/roomcancel')
-              		})
-              		.catch(err =>{
-              		  console.log(err)
-              		})
+          .then(res =>{
+            console.log(res);
+            this.$router.push('/roomcancel')
+            })
+            .catch(err =>{
+              console.log(err)
+            })
       }).catch(() => {
         // on cancel
       });
@@ -219,16 +218,15 @@ export default {
 		let req = {
 			id : this.orderId,
     };
-		this.Api.get('api/reserve/one',req)
-		      	.then(res =>{
-              console.log(res);
-              this.orderInfo = res.data;
-              this.setOrderTit(this.orderInfo.status)
-              this.foodList = res.data.goods;
-		      		})
-		      		.catch(err =>{
-		      		  console.log(err)
-		      		})
+		this.Api.get('api/reserve/one',req).then(res =>{
+      console.log(res);
+      this.orderInfo = res.data;
+      this.setOrderTit(this.orderInfo.status)
+      this.foodList = res.data.goods;
+    })
+    .catch(err =>{
+      console.log(err)
+    })
 	}
   },
   created() {
@@ -293,9 +291,7 @@ export default {
         .van-step{
           color: #fff;
         }
-
       }
-
     }
     .info{
       padding: 0 4%;

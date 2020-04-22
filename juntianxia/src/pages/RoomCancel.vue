@@ -6,7 +6,7 @@
         @click-left="back"
         color="#fff"
         :border="false"
-      />
+      >
       </van-nav-bar>
     </div>
     <div class="reserve-info">

@@ -17,7 +17,7 @@
           <div slot="title" class="title">{{item.goods_name}}</div>
           <div slot="desc">
             <van-rate
-              v-model="item.score"
+              v-model= "item.score"
               allow-half
               void-icon="star"
               void-color="#eee"
@@ -46,6 +46,7 @@ export default {
       return {
             list: [],
             loading: false,
+            numbers:0,
           };
     },
   methods: {
@@ -56,6 +57,7 @@ export default {
       this.$router.push('/Cart');
     },
     onLoad() {
+      this.finished = true;
           // // 异步更新数据
           // setTimeout(() => {
           //   for (let i = 0; i < 10; i++) {
@@ -63,12 +65,12 @@ export default {
           //   }
           //   // 加载状态结束
           //   this.loading = false;
-
           //   // 数据全部加载完成
           //   if (this.list.length >= 40) {
-              this.finished = true;
           //   }
           // }, 500);
+
+
     },
     getList(){
       let req = {
@@ -84,9 +86,7 @@ export default {
     },
     // 添加餐车
     addFood(foodDetail){
-      // if(){
-
-      // }
+      let that = this
       console.log('foodDetail',foodDetail);
       let req = {
         restaurant_id: foodDetail.restaurant_id,
@@ -103,9 +103,8 @@ export default {
             console.log('添加成功',res);
             Toast('添加成功');
             console.log('我向父组件发射了一个事件');
-            this.$emit('messageData',+1)// 子组件向发射事件, 
-        }
-            
+            that.$parent.shopcode()// 子组件向发射事件, 
+        }  
           })
           .catch(err =>{
             console.log(err)

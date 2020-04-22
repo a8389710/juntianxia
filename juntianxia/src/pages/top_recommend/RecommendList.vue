@@ -23,7 +23,6 @@
               void-icon="star"
               void-color="#eee"
               size="14px"
-              readonly
             />
             <span class="star-num">{{item.score}}分</span>
             <span class="sold-num">已售{{item.num}}份</span>
@@ -85,17 +84,24 @@ export default {
           })
     },
     addFood(foodDetail){
+
       console.log(foodDetail);
       let req = {
+        // restaurant_id: foodDetail.restaurant_id,
+        // user_id: foodDetail.user_id,
+        // goods_id: foodDetail.goods_id,
+        // goods_num: 1,
+        // goods_price: foodDetail.price,
+        // remarks: foodDetail.remarks
         restaurant_id: foodDetail.restaurant_id,
-        user_id: foodDetail.user_id,
-        goods_id: foodDetail.goods_id,
+        user_id: localStorage.getItem('uid'),
+        goods_id: foodDetail.id,
         goods_num: 1,
         goods_price: foodDetail.price,
         remarks: foodDetail.remarks,
         type: "1",
-        room_id: '0',
-      };
+        room_id:localStorage.getItem('destine_roomID'),
+              };
       this.Api.post('api/dining_car/add',req)
           .then(res =>{
             console.log(res);

@@ -4,7 +4,7 @@ import axios from 'axios'
 
 
 //设置请求的服务器目录
-axios.defaults.baseURL = "http://47.108.70.59:80"; //接口地址
+// axios.defaults.baseURL = "http://47.108.70.59:80"; //接口地址
 
 
 // axios请求拦截器
@@ -28,12 +28,12 @@ export default {
             axios.get(url, {
                 params
             })
-                .then(response => {
-                    resolve(response.data) //成功
-                })
-                .catch(err => {
-                    reject(err) //失败
-                })
+            .then(response => {
+                resolve(response.data) //成功
+            })
+            .catch(err => {
+                reject(err) //失败
+            })
         })
     },
     //post方式

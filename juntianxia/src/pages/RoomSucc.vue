@@ -71,33 +71,6 @@
           }
         });
       },
-      cancel() {
-        Dialog.confirm({
-          title: '提示',
-          message: '确定要取消包间么？'
-        }).then(() => {
-          let req = {
-            id: this.reserve_id,
-          }
-          //取消包间
-          this.Api.get('api/reserve/del', req)
-            .then(res => {
-              //保存用户信息
-              console.log(res.code);
-              if (res.code == 0) {
-                localStorage.setItem('orderInfo', JSON.stringify(this.orderInfo));
-                this.$router.push('/roomcancel')
-              }
-
-
-            })
-            .catch(err => {
-              console.log(err)
-            })
-        }).catch(() => {
-          // on cancel
-        });
-      },
       getOrderInfo() {
         let req = {
           id: this.reserve_id,
@@ -115,9 +88,33 @@
           .catch(err => {
             console.log(err)
           })
+      },
+      cancel() {
+        Dialog.confirm({
+          title: '提示',
+          message: '确定要取消包间么？'
+        }).then(() => {
+          let req = {
+            id: this.reserve_id,
+          }
+          //取消包间
+          this.Api.get('api/reserve/del', req)
+            .then(res => {
+              //保存用户信息
+              if (res.code == 0) {
+                localStorage.setItem('orderInfo', JSON.stringify(this.orderInfo));
+                this.$router.push('/roomcancel')
+                console.log('储存的信息',JSON.stringify(this.orderInfo))
+              }
+            })
+            .catch(err => {
+              console.log(err)
+            })
+        }).catch(() => {
+          // on cancel
+        });
+      },
 
-
-      }
     },
     mounted() {
       this.getOrderInfo();

@@ -3,7 +3,7 @@
     <div class="swipe-box">
       <van-nav-bar :border="false" class="home-nav"> 
         <div @click="xzAddress" slot="title" class="address">{{assignment.name}}
-          <div v-if="false" >
+          <div v-if="true" >
             <ul class="down" v-for="(item,index) in dataAddress" :key="index">
               <li @click="dataAssign">{{item.name}}</li>
             </ul>
@@ -73,7 +73,7 @@
         </p>
       </van-swipe-item>
     </van-swipe>
-    <!-- <div class="swiper-container">
+    <div class="swiper-container">
       <div class="swiper-wrapper">
         <div
           class="swiper-slide"
@@ -88,17 +88,17 @@
           </p>
         </div>
       </div>
-    </div>-->
+    </div>
+    <div style="height:300px;width:300px;" id="container" tabindex="0"></div>
   </div>
 </template>
+
 <script>
+import AMap from 'AMap';
 import Swiper from "swiper";
 import "swiper/dist/css/swiper.min.css";
-
 // import { AMapManager } from 'vue-amap';
-
 // -----------------------------
-
 
 export default {
   data() {
@@ -114,52 +114,102 @@ export default {
       assignment: {
         name:"默认地址"
       },
-// ------------------------------------
-        zoom: 12,
-        center: [121.59996, 31.197646],
-        address: '',
-        events: {
-            click(e) {
-              let { lng, lat } = e.lnglat;
-              self.lng = lng;
-              self.lat = lat;
-              // 这里通过高德 SDK 完成。
-              var geocoder = new AMap.Geocoder({
-                radius: 1000,
-                extensions: "all"
-              });        
-              geocoder.getAddress([lng ,lat], function(status, result) {
-                if (status === 'complete' && result.info === 'OK') {
-                  if (result && result.regeocode) {
-                    self.address = result.regeocode.formattedAddress;
-                    self.$nextTick();
-                  }
-                }
-              });        
-            }
-          },
-          lng: 0,
-          lat: 0
-
-// ------------------------------------
-
     };
   },
+  // ----------------
+  created() {},
+  // ----------------
+  mounted() {
+    let _this = this
+    this.init()
+    // ------------------------------------------------
+    //滑动
+    var swiper = new Swiper(".swiper-container", {
+      effect: "coverflow",
+      loop: false,
+      grabCursor: true,
+      centeredSlides: true,
+      slidesPerView: "auto",
+      autoplay: 5000,
+      autoplayDisableOnInteraction: false,
+      coverflow: {
+        rotate: 10,
+        stretch: 0,
+        depth: 100,
+        modifier: 1,
+        slideShadows: false
+      },
+      spaceBetween: 50
+    });
 
+    this.Api.get("/api/index/home")
+      .then(res => {
+        //设置展示 和手机号
+        this.bannerImg = res.data.banner;
+        this.baojianList = res.data.optimum;
+        this.shopTel = res.data.tel;
+      })
+      .catch(err => {
+        // console.log(err)
+      });
+
+    // this.Api.get("api/restaurant/lists")
+    //   .then(res => {
+    //     console.log("餐厅列表", res);
+    //     if (res.data.data[0]) {
+    //       localStorage.setItem(
+    //         "restaurantInfo",
+    //         JSON.stringify(res.data.data[0])
+    //       );
+    //       localStorage.setItem("restaurant_id", res.data.data[0].id);
+    //     }
+    //     // console.log(res.data.data[0]);
+    //   })
+    //   .catch(err => {
+    //     // console.log(err)
+    //   });
+
+  },
 
   methods: {
-    // ceshi
-    // lanAdd(){
-    //   var peram = {
-    //     lat: 104.068328,
-    //     lng: 30.534347
-    //   }
-
-    // },
-    dataAssign(){
-      this.dataAssign.name = this.assignment
+    init() {
+      // this.Api.get('/apiAdd/v3/ip?output=xml&key=2e3312741a5172ebdc075701b00f865d')
+      // .then(res=>{
+      //   console.log(res,'地理位置信息')
+      // })
+      let map = new AMap.Map('container', {
+        resizeEnable: true,
+        zoom: 10, //设置地图显示的缩放级别
+        viewMode: '2D', //设置地图模式
+        lang: 'zh_cn', //设置地图语言类型
+      })
+      let geolocation = ''
+    map.plugin('AMap.Geolocation', function() {
+        geolocation = new AMap.Geolocation({
+            enableHighAccuracy: true,//是否使用高精度定位，默认:true
+            timeout: 10000,          //超过10秒后停止定位，默认：无穷大
+            buttonOffset: new AMap.Pixel(10, 20),//定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
+            zoomToAccuracy: true,      //定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
+            buttonPosition:'RB'
+        });
+        map.addControl(geolocation);
+        geolocation.getCurrentPosition();
+        console.log(geolocation.po,'geolocation')
+        AMap.event.addListener(geolocation, 'complete', this.showJW);//返回定位信息
+    });
+    //解析定位结果
     },
-    // -----------------------------
+      // 展示当前定位经纬度
+      showJW(data){
+        console.log(data)
+              var lng = data.position.getLng();
+              var lat = data.position.getLat();
+        // this.lnglatXY = [lng,lat]
+        console.log(lng,'lng')
+        console.log(lat,'lat')
+      },
+
+
     // 选择地址
     xzAddress(){
         this.downAdd = !this.downAdd
@@ -203,118 +253,10 @@ export default {
       this.$router.push("/diancan/diancancaipin");
     }
   },
-  // ----------------
-  created() {},
-  // ----------------
-  mounted() {
-    // 地图 
-    //获取经纬度
-      var _this = this;
 
-      let isMapOk = navigator.geolocation
-      if (isMapOk) {
-        console.log('有地图资格')
-      } else {
-        console.log('没有地图资格')
-      }
-      console.log(isMapOk)
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          //locationSuccess 获取成功的话
-          function(position) {
-            _this.getLongitude = position.coords.longitude;
-            _this.getLatitude = position.coords.latitude;
-            // alert(_this.getLongitude); //弹出经度测试
-            // alert(_this.getLatitude);
-            // 将经纬度传给后台获取位置
-            var peram = {
-              lat: _this.getLongitude,
-              lng:_this.getLatitude
-            }
-            this.Api.get("/api/index/restaurant" ,peram).then(res => {
-              this.dataAddress = res.data
-              // this.assignment.substring(0) = res.data //slice
-              console.log(this.dataAddress,'address')
-            });
-          },
-          //locationError  获取失败的话
-          function(error) {
-            var errorType = [
-              "您拒绝共享位置信息",
-              "获取不到位置信息",
-              "获取位置信息超时"
-            ];
-            console.log(errorType,'map err')
-            // alert(errorType[error.code - 1]);
-          }
-        );
-      }
-    // ------------------------------------------------
-    //滑动
-    var swiper = new Swiper(".swiper-container", {
-      effect: "coverflow",
-      loop: false,
-      grabCursor: true,
-      centeredSlides: true,
-      slidesPerView: "auto",
-      autoplay: 5000,
-      autoplayDisableOnInteraction: false,
-      coverflow: {
-        rotate: 10,
-        stretch: 0,
-        depth: 100,
-        modifier: 1,
-        slideShadows: false
-      },
-      spaceBetween: 50
-    });
-
-    this.Api.get("/api/index/home")
-      .then(res => {
-        // console.log(res);
-        //设置展示 和手机号
-        this.bannerImg = res.data.banner;
-        this.baojianList = res.data.optimum;
-        this.shopTel = res.data.tel;
-        // console.log(this.baojianList);
-        // console.log(this.shopTel);
-      })
-      .catch(err => {
-        // console.log(err)
-      });
-    //
-    this.Api.get("/api/index/restaurant" ,{}).then(res => {
-      this.dataAddress = res.data
-      // this.assignment.substring(0) = res.data //slice
-      console.log(this.dataAddress,'address')
-    });
-
-
-    this.Api.get("api/restaurant/lists")
-      .then(res => {
-        console.log("餐厅列表", res);
-        if (res.data.data[0]) {
-          localStorage.setItem(
-            "restaurantInfo",
-            JSON.stringify(res.data.data[0])
-          );
-          localStorage.setItem("restaurant_id", res.data.data[0].id);
-        }
-        // console.log(res.data.data[0]);
-      })
-      .catch(err => {
-        // console.log(err)
-      });
-  }
 };
 </script>
 <style lang="less" scoped>
-// -------------------------------
-   .amap-demo {
-      height: 300px;
-    }
-// -------------------------------
-
 
 .home {
   width: 100%;
