@@ -89,13 +89,13 @@
         if (!this.codeStatus){
 
 
-          this.Api.post('api/index/getMobileCode',req)
+          this.Api.post('/api/index/getMobileCode',req)
             .then(res =>{
 
               this.codeStatus = true;
               if(res.code==0){
                 this.authcode=res.data
-                Toast(res.data);
+                // Toast(res.data);
                 // Toast('短信已发送至您的手机，请注意查收');
                 const TIME_count = 60;
                 this.count = TIME_count;
@@ -131,8 +131,6 @@
               console.log(err)
             })
         }
-
-
       },
     },
     created() {

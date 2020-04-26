@@ -6,7 +6,7 @@
         alt
         slot="left"
         class="icon-img"
-        @click="back"
+        @click="goback"
       />
     </van-nav-bar>
     <div class="content">
@@ -22,9 +22,9 @@
             <img src="../assets/img/active2.jpg" alt="" class="user-img" />
           </div> -->
           <div class="info">
-            <p class="room-name">筠天下-{{ private_name }}</p>
+            <p class="room-name">筠天下-{{ orderInfo.room.private_name }}</p>
             <p class="price">
-              ¥<span>{{ yfk }}</span>
+              ¥<span>{{ orderInfo.total_money }}</span>
             </p>
           </div>
         </div>
@@ -94,7 +94,7 @@
           <div class="info pay-way">
             <p>支付宝支付</p>
           </div>
-          <van-checkbox v-model="zfbchecked"></van-checkbox>
+          <van-checkbox disabled v-model="zfbchecked"></van-checkbox>
         </div>
       </div>
       <!-- <div class="">
@@ -129,7 +129,7 @@
   </div>
 </template>
 <script>
-import { Toast } from "vant";
+import { Toast, Dialog } from "vant";
     // 获取支付通道
 
 export default {
@@ -145,7 +145,9 @@ export default {
       reserve_id: "",
       sum: 0,
       orderInfo: {
-        pot: [{}]
+        pot:{
+          pot:{}
+        }
       },
       payNum: 0,
       userInfo: [],
@@ -155,10 +157,14 @@ export default {
       total_money: 0,
       alipayWap: "",
       channel:'',
+      timer:'',// 定时器,
+      orderId:'',// 订单id
     };
   },
 
   created() {
+    this.orderId = this.$route.query.orderId
+    console.log(this.orderId)
     let _this = this
       plus.payment.getChannels(function(channels){  
             _this.channel=channels[0];  
@@ -170,29 +176,37 @@ export default {
   mounted() {
     this.getOrderInfo();
     this.getUserInfo();
-    this.reserve_id = localStorage.getItem("reserve_id");
+    this.reserve_id = this.orderId;
     this.yfk = this.$route.query.totalPrice;
+  },
+  beforeDestroy(){
+    clearInterval(this.timer)
   },
   methods: {
     // 立即支付
     pay() {
       //微信支付暂时没办法解决
+      let _this = this
       this.Api.get("/api/pay/alipay_trade", {
-        reserve_id: localStorage.getItem("reserve_id")
+        reserve_id: _this.orderId,
+        coupon_id:0,
+        is_integral:0
       })
         .then(res => {
-          setInterval(()=>{
+          // 三秒拉取一次订单
+          this.timer = setInterval(()=>{
             this.isMyPayOk()
           },3000)
-
-          var airurl = res;
+          var airurl = res.data;
+          console.log(airurl)
           var PAYSERVER='';  
           var id  = 'alipay' // 支付方法
           if (id == "alipay") {
-              PAYSERVER = res;
+              PAYSERVER = airurl;
               // } else if (id == "wxpay") {
               //   PAYSERVER = WXPAYSERVER;
             } else {
+            
               plus.nativeUI.alert("不支持此支付通道！", null, "捐赠");
               return;
             }
@@ -204,11 +218,14 @@ export default {
                 function(result) {
                   plus.nativeUI.alert("支付成功！", function() {
                     back();
-                    console.log(result,'支付成功')
                   });
                 },
                 function(error) {
-                  plus.nativeUI.alert("支付失败：" + error.code);
+                  _this.Api.post('/api/reserve/new_bill_num',{id:_this.orderId}).then(res=>{
+                    console.log('取消支付',res)
+                  })
+
+                  plus.nativeUI.alert("支付失败!");
                 }
               );
         })
@@ -217,36 +234,6 @@ export default {
         });
     },
     // 2. 发起支付请求
-    payAir() {
-      // return;
-      // var xhr = new XMLHttpRequest(); //uni-app中请使用uni的request api联网
-      // xhr.onreadystatechange = function() {
-      //   switch (xhr.readyState) {
-      //     case 4:
-      //       if (xhr.status == 200) {
-      //         plus.payment.request(
-      //           channel,
-      //           xhr.responseText,
-      //           function(result) {
-      //             plus.nativeUI.alert("支付成功！", function() {
-      //               back();
-      //             });
-      //           },
-      //           function(error) {
-      //             plus.nativeUI.alert("支付失败：" + error.code);
-      //           }
-      //         );
-      //       } else {
-      //         alert("获取订单信息失败！");
-      //       }
-      //       break;
-      //     default:
-      //       break;
-      //   }
-      // };
-      // xhr.open("GET", PAYSERVER);
-      // xhr.send();
-    },
 
 
     // 倒计时时间获取处理
@@ -259,10 +246,15 @@ export default {
       console.log(time,'时间')
     },
 
-    back() {
+    goback() {
+      Dialog.confirm({
+        title:'提示',
+        message:'取消支付？'
+      }).then(()=>{
       this.$router.push({
-        path: "/home"
+        path: "/order",
       });
+      }).catch(()=>{})
     },
     toHome() {
       this.$router.push("/home");
@@ -290,27 +282,28 @@ export default {
     // 判断订单是否支付成功
     isMyPayOk(){
       let req = {
-        id: localStorage.getItem("reserve_id")
+        id: this.orderId
       };
       this.Api.get('api/reserve/one',req)
-              .then(res =>{
-                if (res.data.status == 2) {
-                  this.$router.push({
-                    path:'/orderInfo',
-                    query:{
-                      orderId:res.data.id
-                    }
-                  })
-                }
-              })
-              .catch(err =>{
-                console.log(err)
-              })
+        .then(res =>{
+          if (res.data.status == 2) {
+            this.$router.push({
+              path:'/orderInfo',
+              query:{
+                orderId:res.data.id,
+                type:'pay'
+              }
+            })
+          }
+        })
+        .catch(err =>{
+          console.log(err)
+        })
     },
     // 获取订单信息
     getOrderInfo() {
       let req = {
-        id: localStorage.getItem("reserve_id")
+        id:this.orderId
       };
     // 获取请求看看有没有订单状态变化
       this.Api.get('api/reserve/one',req)
@@ -356,7 +349,7 @@ export default {
       position: relative;
       .pot-tag {
         position: absolute;
-        right: 0;
+        right: -2vw;
         top: 50%;
         transform: translateY(-50%);
       }

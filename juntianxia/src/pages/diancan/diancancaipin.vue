@@ -1,6 +1,6 @@
 <template>
   <div class="reserve">
-    <van-nav-bar title="菜品预定" left-arrow @click-left="back" />
+    <van-nav-bar placeholder class="nav" title="菜品预定" left-arrow @click-left="back" />
     <div class="food-type" style="margin-top: 0;">
       锅底
       <div class="cance" @click="tocance">
@@ -144,7 +144,6 @@
     </div>
 
     <!-- 餐车 -->
-
     <van-popup v-model="show" class="layer" position="bottom">
       <div class="middle">
         <p class="title">菜品清单</p>
@@ -261,12 +260,14 @@ export default {
       pot: false,
       pot_price: 0,
       pot_name: "",
-      potlistobj: {}
+      potlistobj: {},
+      orderId:'',
     };
   },
 
   created(){
     this.diancanType = this.$route.query.type
+    this.orderId =  this.$route.query.orderId
   },
   methods: {
 
@@ -312,19 +313,18 @@ export default {
     },
     // 显示点餐方式
     choseOrderWay() {
-      if (this.$route.query.orderId) {
+      if (this.orderId) {
       } else {
-      Dialog.confirm({
+      Dialog.alert({
         title:'提示',
-        message: '您需要先预定包间，前往预定？',
+        message: '您需要先预定包间，请前往预订^_^',
       }).then(()=>{
         this.$router.push({
           path:'/baojianlist'
         })
       })
-      .catch()
+      return
       }
-
       if (!this.goodsMsg.pot.id) {
         Toast('请选择锅底')
         return
@@ -615,7 +615,7 @@ export default {
         msg.pot.goods_id = msg.pot.id
         goodsList.push(msg.pot)
             let req = {
-              reserve_id :this.$route.query.orderId, // 餐厅id
+              reserve_id :this.orderId, // 餐厅id
               add_type :'0',// 到店传
               remarks:'',// 备注
               info:goodsList,
@@ -628,7 +628,7 @@ export default {
                   this.$router.push({
                     path:'/pay',
                     query:{
-                      orderId:1,
+                      orderId:this.orderId,
                       totalPrice:Number(msg.totalPrice)
                     }
                   })
@@ -725,12 +725,14 @@ export default {
           console.log("菜品分类列表", err);
         });
     },
+
     num1(food) {
       Toast.loading({
         duration:500,
         message:'加载中'
       })
-      console.log(food.goods_name,'增加 1')
+      // 判断是否预定包间
+      if (this.orderId) {
       let isNew = false
       let list =  this.goodsMsg.goodsList
         // 第一次加入
@@ -753,6 +755,19 @@ export default {
       setTimeout(()=>{
         this.saveChoseGoodsPrice(this.goodsMsg.goodsList)
       },500)
+
+
+      } else {
+      Dialog.alert({
+        title:'提示',
+        message: '您需要先预定包间，请前往预订^_^',
+      }).then(()=>{
+        this.$router.push({
+          path:'/baojianlist'
+        })
+      })
+      return
+      }
 
     },
     num2(food) {
@@ -905,9 +920,11 @@ export default {
   text-align: center;
   color: #fff;
   font-size: 1.2rem;
-  padding: 1rem 0;
-  background: orange;
-  margin: 2% 0;
+  padding: 3vw 0;
+  background: linear-gradient(90deg, rgba(255, 155, 67, 1), rgba(251, 127, 56, 1));
+  margin:3% auto;
+  width: 95%;
+  border-radius: 10px;
   position: relative;
 
   .cance {
@@ -916,8 +933,9 @@ export default {
     background: url("../../assets/canche.png") center center;
     background-size: cover;
     position: absolute;
-    top: 30px;
-    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
 
     span {
       font-size: 14px;
@@ -1005,7 +1023,7 @@ export default {
       position: absolute;
       top: 1rem;
       right: 0;
-
+      box-shadow: 0 3px 1px 3px #1e1e1e17;
       > div {
         margin-left: 56%;
         color: #666;
@@ -1200,14 +1218,14 @@ export default {
     color: rgba(153, 153, 153, 1);
   }
 
-  .food-type {
-    // text-align: center;
-    color: #fff;
-    font-size: 1rem;
-    padding: 0.5rem 0;
-    background: orange;
-    margin: 2% 0;
-  }
+  // .food-type {
+  //   // text-align: center;
+  //   color: #fff;
+  //   font-size: 1rem;
+  //   padding: 0.5rem 0;
+  //   background: orange;
+  //   margin: 2% 0;
+  // }
 
   .food-list {
     // padding:0.4rem;
@@ -1242,6 +1260,7 @@ export default {
       border-radius: 4px;
       padding: 8px;
       margin: 0.4rem auto;
+      box-shadow: 0 2px 1px 2px #1e1e1e17;
       // padding-bottom: 0;
       .van-image {
         border-radius: 4px;
@@ -1279,7 +1298,7 @@ export default {
 
   .van-submit-bar__bar {
     padding-right: 0;
-
+    height: 40px;
     .van-submit-bar__button {
       border-radius: 0;
       height: 100%;

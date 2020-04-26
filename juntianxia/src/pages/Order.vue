@@ -12,7 +12,6 @@
         :title="item.title"
         :name="item.id" 
       >
-        <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
           <van-list
             v-model="loading"
             :finished="finished"
@@ -42,6 +41,13 @@
                   >申请退单
                 </van-button>
                 <van-button
+                  v-if="order.status == '1'"
+                  type="default"
+                  class="btn-style"
+                  @click="toOrderInfo(order.id)"
+                  >前往付款
+                </van-button>
+                <van-button
                   v-if="order.status == '4'"
                   type="default"
                   class="btn-style"
@@ -57,7 +63,6 @@
               </div>
             </div>
           </van-list>
-        </van-pull-refresh>
       </van-tab>
     </van-tabs>
   </div>
@@ -68,9 +73,8 @@ export default {
   data() {
     return {
       list: [],
-      loading: false,
       finished: false,
-      refreshing: false,
+      loading: false,
       activeName: "0",
       title: "",
       titleList: [
@@ -103,13 +107,8 @@ export default {
     if (status) {
       this.status = status;
       this.activeName = status;
-      // switch(status){
-      //   case '' :this.activeName = '0';break;
-      //   case '1' :this.activeName = '1';break;
-      //   case '3' :this.activeName = '3';break;
-      //   case '5' :this.activeName = '5';break;
-      // }
     }
+      this.onRefresh()
   },
   mounted() {
     // this.getOrderList()
@@ -118,24 +117,16 @@ export default {
   methods: {
     // 下拉渲染列表
     onLoad() {
-        console.log('请求一次')
         this.getOrderList()
-      setTimeout(() => {
-        if (this.refreshing) {
-          this.orderList = [];
-          this.refreshing = false;
-        }
-        this.loading = false;
-      }, 1000);
     },
 
     // 重新加载
     onRefresh() {
       // 清空列表数据
-      this.finished = false;
       // 重新加载数据
       // 将 loading 设置为 true，表示处于加载状态
       this.loading = true;
+      this.finished = false;
       this.orderList = []
       this.current_page = 1
       this.onLoad();
@@ -182,11 +173,6 @@ export default {
           list.forEach(order => {
             order.desstr = this.setOrderStatus(order.status);
           });
-          // Toast.loading({
-          //   message: '加载中...',
-          //   forbidClick: true,
-          //   duration:600,
-          // });
           setTimeout(()=>{
             this.orderList = this.orderList.concat(list);
             this.has_more = res.data.has_more
@@ -194,9 +180,10 @@ export default {
               this.current_page++
             } else {
               // 没有更多了
+              console.log('没有更多了')
               this.finished = true
-              this.loading = false
             }
+              this.loading = false
           },500)
           // console.log('哈哈',this.orderList);
         })
@@ -209,7 +196,6 @@ export default {
     changeTab(status, title) {
       console.log(status, title);
       this.current_page = 1
-      
       this.status = status;
       this.onRefresh()
     },
@@ -222,7 +208,7 @@ export default {
           str = "预定中";
           break;
         case 1:
-          str = "代付款";
+          str = "待付款";
           break;
         case 2:
           str = "到店消费";

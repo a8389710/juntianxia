@@ -97,7 +97,7 @@
   </div>
 </template>
 <script>
-import { Toast } from "vant";
+import { Toast, Dialog } from "vant";
 export default {
   data() {
     return {
@@ -183,14 +183,26 @@ export default {
                 }
               });
               // this.$router.push('/reserve/reservefood');
-            } else if (res.msg == "已存在预约中的订单！") {
-              // localStorage.setItem('reserve_id',res.data.id);
-              // this.$router.push('/roomsucc');预定成功跳转预定成功
-              // this.$router.push('/reserve/reservefood');
-              // this.$router.push('/yuyuechengong');
-              Toast(res.msg);
             } else {
-              Toast(res.msg);
+              let str = res.msg
+              let isYD = str.indexOf('预订')
+              if (isYD !== -1) {
+                  Dialog.alert({
+                    title:'提示',
+                    message:str
+                  })
+              } else {
+                  Dialog.confirm({
+                    title:'提示',
+                    message:str+'是否前去处理?'
+                  }).then(()=>{
+                    this.$router.push({
+                      path:'/order'
+                    })
+                  }).catch(()=>{
+    
+                  })
+              }
             }
           })
           .catch(err => {
@@ -221,8 +233,7 @@ export default {
     var r = JSON.parse(localStorage.getItem("restaurantInfo"));
     this.restaurant_id = r.id;
     console.log(this.restaurant_id);
-    this.Api.get("/api/pay_order/getdate")
-      .then(res => {
+    this.Api.get("/api/pay_order/getdate").then(res => {
         console.log("hh", res);
         this.dateList = res.data;
       })

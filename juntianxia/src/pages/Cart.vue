@@ -44,6 +44,7 @@
               slot="right-icon"
               checked-color="#FD8634"
               v-model="item.isSelect"
+
               @click="check(item)"
               @change="changeItem(item)"
               :disabled="item.pot==0"
@@ -52,7 +53,10 @@
           </div>
           <!-- 商品数量添加按钮 -->
           <div slot="footer" class="stepper">
-            <van-stepper v-model="item.goods_num" button-size="26px"  :disabled="item.pot==0" />
+            <van-stepper v-model="item.goods_num" button-size="26px"              
+             :min="0"
+              :max="item.stock_num" 
+              :disabled="item.pot==0" />
           </div>
           <div slot="footer" class="isCost" v-show="item.is_pay==1">
             <img src="../assets/img/cost.png" alt="">
@@ -180,7 +184,7 @@
       back() {
         this.$router.back(-1);
       },
-      getCartList() {
+      getCartList() { 
         let req = {
           page : 1,
           user_id: localStorage.getItem('uid'),
@@ -203,32 +207,34 @@
                   isSelect:true,
                   num:200,
                   goods_num:res.data.pot.goods_num,
-                  is_pay:1,
+                  // is_pay:1,
                   goods_id:res.data.pot.goods_id,
                   goods_content:res.data.pot.pot.pot_title,
                   goods_price:res.data.pot.pot.pot_price,
-                  pot:0
+                  pot:0,
+                  
                 })
-                console.log(this.cartList);
               }
               if(JSON.stringify(res.data.goods) !== '[]'){
                 console.log('添加菜品');
                  for (var i=0;i<res.data.goods.length;i++){
-                   console.log(res.data.goods[i]);
+                  //  console.log(res.data.goods[i]);
                    this.cartList.push({
                    goods_url:res.data.goods[i].goods.goods_url,
                    goods_name:res.data.goods[i].goods.goods_name,
-                   score:4,
+                   score:5,
                    isSelect:true,
                    num:200,
                    goods_num:res.data.goods[i].goods_num,
-                   is_pay:1,
+                  //  is_pay:1,
                    goods_id:res.data.goods[i].goods_id,
                    goods_content:res.data.goods[i].goods.goods_content,
                    goods_price:res.data.goods[i].goods_price,
-                   pot:1
+                   pot:1,
+                   stock_num:res.data.goods[i].goods.stock.stock_num
                   })
                  }
+                 console.log(this.cartList)
               }
             }else {
               console.log('请求失败');
@@ -416,7 +422,7 @@
         background: #fff;
         border-radius: 4px;
         padding: 8px;
-        // padding-bottom: 0;
+        padding-bottom: 8px;
         .van-image {
           border-radius: 4px;
         }
@@ -434,7 +440,9 @@
         .van-card__header {
           margin-left: 8%;
         }
-
+        .van-card__content{
+          min-height: inherit;
+        }
         .stepper {
           margin-top: -3rem;
         }

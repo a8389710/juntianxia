@@ -1,10 +1,10 @@
 <template>
  <div id="app">
     <div class="header">
-      <router-view name="header" />
+        <router-view  name="header" />
     </div>
     <div class="body">
-      <router-view v-wechat-title="$route.meta.title" />
+        <router-view v-wechat-title="$route.meta.title" />
     </div>
     <div class="footer">
       <router-view  name="tabbar" />

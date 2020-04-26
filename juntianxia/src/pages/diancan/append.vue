@@ -17,7 +17,7 @@
       @change-area="changeArea"
       @save="onSave"
       @delete="onDelete"
-      @change-detail="onChangeDetail"
+      @change-detail="onChangeDetail" 
     >
       <template slot=""></template>
     </van-address-edit>
@@ -277,13 +277,13 @@
 
   // 输入详细地址下拉框
   .choice{
-    width: 50%;
+    width: 70%;
     // height: 300px;
     background-color: #ffffff;
     text-align: center;
     margin: 0 auto;
     position: absolute;
-    top: 400px;
+    top: 500px;
     left: 25%;
     padding: 10px;
     color: #323233;

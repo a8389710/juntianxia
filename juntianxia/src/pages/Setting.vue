@@ -7,7 +7,9 @@
 
      <van-cell title="账号与安全" is-link size='large' class="margin-style" @click="tozhanhuanquan"/>
     <van-cell title="清除缓存" is-link size='large' @click="clearAll"/>
-    <van-button type="default" class="btn-box" @click="logOut">退出账号</van-button>
+    <van-cell class="vell">
+      <van-button type="default" class="btn-box" @click="logOut">退出账号</van-button>
+    </van-cell>
   </div>
 </template>
 <script>
@@ -54,13 +56,18 @@ export default {
   .margin-style{
       margin-top: 12px;
   }
-  .btn-box{
-      width: 703px;
-      height: 86px;
-      background:linear-gradient(90deg,rgba(255,155,67,1),rgba(251,127,56,1));
-      margin-left: 24px;
-      margin-top: 676px;
-      border-radius: 18px;
+  .vell{
+    width: 100%;
+    .btn-box{
+        width: 100%;
+        height: 86px;
+        font-weight: bold;
+        color:#ffffff;
+        margin: 0 auto;
+        background:linear-gradient(90deg,rgba(255,155,67,1),rgba(251,127,56,1));
+        line-height: 1;
+        border-radius: 50px;
+    }
   }
 }
 </style>

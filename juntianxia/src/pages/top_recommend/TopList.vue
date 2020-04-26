@@ -1,17 +1,19 @@
 
 <template>
   <div class="reserve-food">
+    
     <!-- 加载列表 -->
     <van-list
       class="food-list"
       v-model="loading"
+      :finished="finished"
       finished-text="没有更多了"
       @load="onLoad"
     >
     <!-- 一个商品卡 -->
       <van-card
         :thumb="item.goods_url"
-        v-for="item in list"
+        v-for="(item,idx) in list"
         :key="item.id"
       >
           <div slot="title" class="title">{{item.goods_name}}</div>
@@ -24,15 +26,19 @@
               size="14px"
               readonly
             />
-            <span class="star-num">{{item.score}}分</span>
-            <span class="sold-num">库存：{{item.num}}</span>
+            <span class="star-num"> {{item.score}} 分</span>
+            <span class="sold-num">已售：{{item.num}}</span>
           </div>
           <div slot="desc" class="desc">
             {{item.goods_content}}
           </div>
           <div slot="price" class="price">￥{{item.price}}</div>
-          <div slot="footer" class="btn-add">
-            <van-icon name="add-o" size="2rem" color="#FC934D" @click="addFood(item)"/>
+          <div v-if="!item.isChose" slot="footer" class="btn-add">
+            <van-icon name="add-o" size="2rem" color="#FC934D" @click="addFood(item,idx)"/>
+          </div>
+            <div v-else slot="footer" class="btn-add">
+             <van-icon name="star" color="#FC934D" />
+             已添加
           </div>
       </van-card>
       <!-- 一个商品卡结束 -->
@@ -40,13 +46,16 @@
   </div>
 </template>
 <script>
-  import { Toast } from 'vant';
+  import { Toast, Dialog } from 'vant';
 export default {
   data() {
       return {
             list: [],
             loading: false,
             numbers:0,
+            hasChoseGoodsList:[],
+            finished: false,
+            current_page:1,
           };
     },
   methods: {
@@ -57,38 +66,78 @@ export default {
       this.$router.push('/Cart');
     },
     onLoad() {
-      this.finished = true;
-          // // 异步更新数据
-          // setTimeout(() => {
-          //   for (let i = 0; i < 10; i++) {
-          //     this.list.push(this.list.length + 1);
-          //   }
-          //   // 加载状态结束
-          //   this.loading = false;
-          //   // 数据全部加载完成
-          //   if (this.list.length >= 40) {
-          //   }
-          // }, 500);
-
-
+        this.getList()
     },
+
+    // 重新加载
+    onRefresh() {
+      // 清空列表数据
+      // 重新加载数据
+      // 将 loading 设置为 true，表示处于加载状态
+      this.loading = true;
+      this.finished = false;
+      this.orderList = []
+      this.current_page = 1
+      this.onLoad();
+    }, 
     getList(){
+      // 获取菜品
       let req = {
               };
-      this.Api.post('api/goods_ranking/lists',req)
-          .then(res =>{
+      // 获取已经选择菜品
+        let reqq = {
+              page : this.current_page,
+              user_id: localStorage.getItem('uid'),
+              room_id: localStorage.getItem('destine_roomID'),
+              restaurant_id : localStorage.getItem('restaurant_id'),
+              list_rows : 200, 
+        };
+        let Idbox = []
+        this.Api.post('api/dining_car/lists', reqq).then(hasRes => {
+          // this.badge = res.data.goods.length
+          this.hasChoseGoodsList = hasRes.data.goods
+          //  列表
+          this.Api.post('api/goods_ranking/lists',req).then(res =>{
+          setTimeout(()=>{
             this.list = res.data.data;
-            console.log('list',this.list);
-         })
-          .catch(err =>{
-            console.log(err)
+            this.list.forEach(item=>{
+              item.num = Number(item.num)
+              item.score = Number(item.score)
+              item.isChose = false
+              this.hasChoseGoodsList.forEach(hasgood=>{
+                if (hasgood.goods_id == item.goods_id) {
+                  item.isChose = true
+                } 
+              })
+            })
+            if (this.list.length > res.data.total){
+              this.current_page++
+            } else {
+              this.finished = true
+            }
+            this.loading = false
+          },500)
+
           })
+            .catch(err =>{
+              console.log(err)
+            })
+          })
+
     },
     // 添加餐车
-    addFood(foodDetail){
+    addFood(foodDetail,idx){
       let that = this
-      console.log('foodDetail',foodDetail);
-      let req = {
+      let newList = [...this.list]
+      // console.log
+      if (foodDetail.stock_num == 0) {
+        Dialog.alert({
+          title: '提示',
+          message: '当前商品暂无库存无法添加',
+        }).then(() => {
+        });
+      }else{
+         let req = {
         restaurant_id: foodDetail.restaurant_id,
         user_id: localStorage.getItem('uid'),
         goods_id: foodDetail.id,
@@ -100,15 +149,17 @@ export default {
       };
       this.Api.post('api/dining_car/add',req).then(res =>{
         if(res.code == 0){
-            console.log('添加成功',res);
             Toast('添加成功');
-            console.log('我向父组件发射了一个事件');
             that.$parent.shopcode()// 子组件向发射事件, 
+            newList[idx].isChose = true
+            this.list = newList
         }  
           })
           .catch(err =>{
             console.log(err)
           })
+
+      }
     },
     
   },
@@ -160,7 +211,7 @@ export default {
     .title{
       font-size: 1rem;
       font-weight: bold;
-      margin-top: 15px;
+      margin-top:0;
       margin-bottom: 10px;
     }
     .star-num{
@@ -170,14 +221,11 @@ export default {
     .price{
       font-size: 1.2rem;
       color: #FC934D;
-      margin-top: 15px;
+      margin-top: 15px; 
     }
     .desc{
       margin-top: 5px;
       color: #898989;
-    }
-    .btn-add{
-      margin-top: -2rem;
     }
     span{
       color: #666;
@@ -186,7 +234,7 @@ export default {
       background: #fff;
       border-radius: 4px;
       padding: 8px;
-      padding-bottom: 0;
+      padding-bottom: 8px;
       .van-image{
         border-radius: 4px;
       }
@@ -194,6 +242,14 @@ export default {
         width: 100px;
         height: 80px;
       }
+    }
+    .van-card__content{
+      min-height: inherit;
+    }
+    .van-card__footer{
+      position: absolute;
+      right:10px;
+      bottom:12px;
     }
     .van-card:not(:first-child){
       margin-top: 6px;

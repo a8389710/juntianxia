@@ -106,6 +106,9 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
         p {
           font-size: 30px;
           font-family: PingFang SC;

@@ -12,11 +12,15 @@
             <span class="xinmin">{{item.receiving_name}}</span>
             <span class="shouji">{{item.receiving_phone}}</span>
           </div>
-          <div class="dizhi">{{item.receiving_address}}</div>
+          <div class="dizhi">
+            <p class="dizhi-address">
+              {{item.receiving_address}}
+            </p>
+            </div>
         </div>
         <div class="c"></div>
-        <div class="r" @click="removeAdd(item)">删除</div>
-        <div class="r" @click="toredact(item)">编辑</div>
+        <div class="r shanchu" @click="removeAdd(item)">删除</div>
+        <div class="r bianji" @click="toredact(item)">编辑</div>
       </div>
     </div>
      <div class="tianjia" @click="toappend">
@@ -151,14 +155,15 @@ import { Toast } from 'vant';
             padding-left: 60px;
           }
           .dizhi{
+            padding:2vw 8vw;
+            letter-spacing: 1px;
             font-size:24px;
             font-family:PingFang SC;
             font-weight:400;
             color:rgba(34,34,34,1);
-
-            padding-left:30px;
-            padding-top: 21px;
-
+            .dizhi-address{
+              width: 80%;
+            }
           }
         }
         .c{
@@ -170,14 +175,21 @@ import { Toast } from 'vant';
           background:rgba(225,225,225,1);
         }
         .r{
-          float: right;
           font-size:24px;
           font-family:PingFang SC;
           font-weight:400;
           color:rgba(153,153,153,1);
           line-height:42px;
-          padding-right: 30px;
-          padding-top: 48px;
+          position: absolute;
+          top:50%;
+          transform: translateY(-50%);
+          right:0px;
+        }
+        .shanchu{
+          right:5vw;
+        }
+        .bianji{
+          right:15vw;
         }
       }
     }

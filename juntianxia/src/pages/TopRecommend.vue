@@ -5,16 +5,16 @@
       <van-icon
         name="cart"
         alt
-        slot="right"
+        slot="right" 
         color="#333"
-        size="1rem"
+        size="1rem" 
         :info="badge"
         @click="toCart"
       />
     </van-nav-bar>
     <van-tabs :border="false" line-width="40px" color="#F7692B">
       <van-tab title="热度排行" to="/toplist"></van-tab>
-      <van-tab title="菜品推荐" to="/recommendlist"></van-tab>
+      <!-- <van-tab title="菜品推荐" to="/recommendlist"></van-tab> -->
     </van-tabs>
     <div class="list">
       <router-view></router-view>
@@ -29,7 +29,7 @@ export default {
       badge: '',
     };
   },
-  mounted(){
+  created(){
     // get car 
     let req = {
           page : 1,

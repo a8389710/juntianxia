@@ -2,10 +2,8 @@
 import axios from 'axios'
 // import local from "@/utils/local";
 
-
 //设置请求的服务器目录
-// axios.defaults.baseURL = "http://47.108.70.59:80"; //接口地址
-
+axios.defaults.baseURL = "http://47.108.70.59:80"; //接口地址
 
 // axios请求拦截器
 axios.interceptors.request.use(config => {
@@ -17,8 +15,6 @@ axios.interceptors.request.use(config => {
 
   return config;
 })
-
-
 
 //导出请求的对象
 export default {

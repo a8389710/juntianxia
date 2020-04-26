@@ -16,7 +16,7 @@
         <van-step>订单完成</van-step>
       </van-steps>
     </div>
-
+      <!-- 包间详情形象= -->
     <div class="reserve-info">
       <p class="name">筠天下-{{pri_name}}</p>
       <van-divider/>
